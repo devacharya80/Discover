@@ -1,0 +1,271 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User Model
+model User{
+  id String @id @default(uuid())
+  email String @unique
+  name String
+  password String?
+  role UserRole @default(USER)
+  location UserLocation?
+  companyMembers CompanyMember[]
+  applications Application[]
+  companyClaimRequests CompanyClaimRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole{
+  USER
+  ADMIN
+}
+
+model UserLocation{
+  id String @id @default(uuid())
+  address String
+  city String
+  state String
+  country String @default("INDIA")
+  latitude Float?
+  longitude Float?
+  pincode String
+
+  userId String @unique
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Company Model
+model Company{
+  id String @id @default(uuid())
+  name String
+  slug String @unique
+  industry String
+  description String
+  website String?
+  logoUrl String?
+  foundedYear Int?
+  companySize CompanySize @default(SEED_1_10)
+  status CompanyStatus @default(ACTIVE)
+  verificationStatus VerificationStatus @default(PENDING)
+  createdSource CreatedSource
+  companyMembers CompanyMember[]
+  companyLocations CompanyLocation[]
+  jobs Job[]
+  companyClaimRequests CompanyClaimRequest[]
+
+  @@index([industry])
+  @@index([status])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CompanySize {
+  SEED_1_10        // 1-10 employees
+  SMALL_11_50      // 11-50 employees
+  MEDIUM_51_200    // 51-200 employees
+  MIDMARKET_201_500// 201-500 employees
+  LARGE_501_1000   // 501-1000 employees
+  ENTERPRISE_1000_PLUS
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum VerificationStatus{
+  VERIFIED
+  PENDING
+  REJECTED
+}
+
+enum CreatedSource{
+  DISCOVERED
+COMPANY_CREATED
+ADMIN_CREATED
+}
+
+model CompanyMember{
+  id String @id @default(uuid())
+  userId String
+  companyId String
+  role CompanyRole
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId,companyId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CompanyRole{
+  ADMIN
+  OWNER
+  RECRUITER
+}
+
+// CompanyLocation model
+model CompanyLocation{
+  id String @id @default(uuid())
+  companyId String
+  company Company @relation(fields: [companyId],references: [id],onDelete: Cascade)
+  name String
+  address String
+  city String
+  state String
+  country String @default("INDIA")
+  latitude Float?
+  longitude Float?
+  pincode String
+  isPrimary Boolean 
+  jobs Job[]
+
+  @@index([name])
+  @@index([city])
+  @@index([state])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Job model
+model Job {
+  id              String           @id @default(uuid())
+  companyId       String
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  locationId      String?
+  location        CompanyLocation? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  title           String
+  description     String           @db.Text
+
+  type            WorkType         @default(FULL_TIME)
+  mode            WorkMode         @default(REMOTE)
+  experienceLevel ExperienceLevel  @default(ENTRYLEVEL)
+
+  skills          String[]
+
+  salaryMin       Int?
+  salaryMax       Int?
+
+  externalLink    String?
+  source          JobSource        
+
+  status          JobStatus        @default(ACTIVE)
+  expiresAt       DateTime?
+
+  applications Application[]
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([companyId])
+  @@index([locationId])
+  @@index([type])
+  @@index([mode])
+  @@index([experienceLevel])
+}
+
+enum WorkType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ON_SITE
+}
+
+enum ExperienceLevel {
+  ENTRYLEVEL
+  JUNIOR
+  MID_LEVEL
+  SENIOR
+  LEAD
+  EXECUTIVE
+}
+
+enum JobSource {
+  PLATFORM
+  EXTERNAL
+}
+
+enum JobStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  CLOSED
+  ARCHIVED
+}
+
+// Application model
+// user <-> job
+model Application{
+  id              String           @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId],references: [id], onDelete: Cascade)
+  jobId String
+  job Job @relation(fields: [jobId],references: [id],onDelete: Cascade)
+  status ApplicationStatus @default(APPLIED)
+
+  @@unique([userId,jobId])
+
+
+  appliedAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum ApplicationStatus {
+    APPLIED
+    REVIEWING
+    SHORTLISTED
+    REJECTED
+    HIRED
+    WITHDRAWN
+}
+
+// CompanyClaimRequest Model
+model CompanyClaimRequest {
+  id              String           @id @default(uuid())
+  userId          String
+  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+  companyId       String
+  company Company @relation(fields: [companyId],references: [id],onDelete: Cascade)
+  status ClaimStatus @default(PENDING)
+
+
+
+  requestedAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum ClaimStatus{
+  PENDING
+  APPROVED
+  REJECTED
+}
