@@ -1,8 +1,8 @@
 import express from "express";
-const route = express.Router();
+const healthRouter = express.Router();
 
 import {testHealth} from "../controller/health.controller.js"
 
-route.get("/health",testHealth)
+healthRouter.get("/health",testHealth)
 
-export default route;
+export default healthRouter;
