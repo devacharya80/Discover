@@ -100,8 +100,8 @@ enum VerificationStatus{
 
 enum CreatedSource{
   DISCOVERED
-COMPANY_CREATED
-ADMIN_CREATED
+  COMPANY_CREATED
+  ADMIN_CREATED
 }
 
 model CompanyMember{

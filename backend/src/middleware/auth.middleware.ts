@@ -5,10 +5,14 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
   // Read the token cookie set during login/registration
   const token = req.cookies?.token;
 
+  // if (!token) {
+  //   return res.status(401).json({
+  //     message: "Authentication required. No token provided.",
+  //   });
+  // }
+
   if (!token) {
-    return res.status(401).json({
-      message: "Authentication required. No token provided.",
-    });
+    throw new Error("Token required");
   }
 
   try {

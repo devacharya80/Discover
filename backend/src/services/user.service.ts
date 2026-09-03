@@ -1,5 +1,5 @@
 import prisma from "../lib/prisma.js";
-import type { UserType, UserLocationType } from "../types/user.type.js";
+import type { UserType } from "../types/user.type.js";
 import type { UpdateProfileType } from "../types/auth.schema.js";
 
 export const getUserService = async (userId: string): Promise<UserType> => {
@@ -12,6 +12,12 @@ export const getUserService = async (userId: string): Promise<UserType> => {
       name: true,
       email: true,
       location: true,
+      companyMembers : {
+        select : {
+          role : true,
+          company : true
+        }
+      }
     },
   });
 
