@@ -17,12 +17,21 @@ export const registerService = async (registerData: RegisterType): Promise<AuthR
   const hashedPassword = await bcrypt.hash(registerData.password, 10);
 
   const newUser = await prisma.user.create({
-    data: {
-      name: registerData.name,
-      email: registerData.email,
-      password: hashedPassword,
-    },
-  });
+  data: {
+    name: registerData.name,
+    email: registerData.email,
+    password: hashedPassword,
+
+    ...(registerData.location && {
+      location: {
+        create: registerData.location,
+      },
+    }),
+  },
+  include : {
+    location : true
+  }
+});
 
   const token = createToken(newUser.id, newUser.role);
 
@@ -31,6 +40,7 @@ export const registerService = async (registerData: RegisterType): Promise<AuthR
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
+      location: registerData.location ?? null
     },
     token,
   };

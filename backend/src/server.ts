@@ -1,5 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import healthRouter from "./routes/health.route.js";
 import authRouter from "./routes/auth.route.js";
@@ -10,6 +11,15 @@ import companyRouter from "./routes/company.route.js"
 const app = express();
 
 const PORT = 5000;
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // URL of your Vite frontend
+    credentials: true,               // Allows cookies & authorization headers
+    methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
