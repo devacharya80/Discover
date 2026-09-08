@@ -30,6 +30,16 @@ export const getCompany = async (
   return response.data;
 };
 
+export const getCompanies = async (): Promise<
+  ApiResponse<CompanyWithLocations[]>
+> => {
+  const response = await api.get<ApiResponse<CompanyWithLocations[]>>(
+    "/company"
+  );
+
+  return response.data;
+};
+
 export const updateCompany = async (
   companyId: string,
   data: UpdateCompanyType

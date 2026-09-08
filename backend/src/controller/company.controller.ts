@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import {
   createCompanyService,
   getCompanyService,
+  getAllCompaniesService,
   updateCompanyService,
   createCompanyLocationService,
   getCompanyLocationService,
@@ -60,6 +61,21 @@ export const getCompanyController = async (req: Request, res: Response) => {
       .json({ message: "Error while getting company, Please try again later" });
   }
 };
+
+export const getAllCompanyController = async (req: Request, res: Response) => {
+  try {
+    const companies = await getAllCompaniesService();
+    return res.status(200).json({
+      message : "Companies data fetched successfully",
+      data : companies
+    })
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Error while getting company, Please try again later" });
+  }
+}
 
 export const updateCompanyController = async (req: Request, res: Response) => {
   try {

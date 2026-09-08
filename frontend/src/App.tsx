@@ -1,46 +1,15 @@
-import { useState } from "react";
-import { AnimatePresence } from "motion/react";
+import { Routes, Route } from "react-router-dom";
 
-import MapView from "./components/Map";
-import Navbar from "./components/NavBar";
-import Register from "./components/register/Register";
-import Login from "./components/login/Login";
-
-type ModalType = "login" | "register" | null;
+import Home from "./pages/home/Home";
+import CompanyDetails from "./pages/companyPages/CompanyDetails";
 
 function App() {
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
-
-  const closeModal = () => setActiveModal(null);
-
   return (
-    <main className="relative h-screen w-screen overflow-hidden">
-      {/* Navbar overlay */}
-      <Navbar
-        onOpenLogin={() => setActiveModal("login")}
-        onOpenRegister={() => setActiveModal("register")}
-      />
-
-      {/* Base Map View */}
-      <MapView />
-
-      {/* Modal overlays */}
-      <AnimatePresence>
-        {activeModal === "register" && (
-          <Register
-            onClose={closeModal}
-            onSwitchToLogin={() => setActiveModal("login")}
-          />
-        )}
-
-        {activeModal === "login" && (
-          <Login
-            onClose={closeModal}
-            onSwitchToRegister={() => setActiveModal("register")}
-          />
-        )}
-      </AnimatePresence>
-    </main>
+    <Routes>
+      <Route path="/" element={<Home />}>
+        <Route path="company/:companyId" element={<CompanyDetails />} />
+      </Route>
+    </Routes>
   );
 }
 

@@ -4,6 +4,7 @@ const companyRouter = express.Router();
 import {
   createCompanyController,
   getCompanyController,
+  getAllCompanyController,
   updateCompanyController,
   createCompanyLocationController,
   getCompanyLocationController,
@@ -14,6 +15,7 @@ import { authenticate } from "../middleware/auth.middleware.js";
 
 companyRouter.post("/", authenticate, createCompanyController);
 companyRouter.get("/:id", getCompanyController);
+companyRouter.get("/", getAllCompanyController);
 companyRouter.patch("/:id", authenticate, updateCompanyController);
 
 companyRouter.post("/:companyId/locations", authenticate, createCompanyLocationController);
