@@ -15,6 +15,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  location? : UserLocationType
 }
 
 export interface UpdateUserProfileType {}

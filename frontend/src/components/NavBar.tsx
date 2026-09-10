@@ -1,5 +1,6 @@
-import { LogIn, LogOut, User, UserPlus } from "lucide-react";
+import { LogIn, User, UserPlus } from "lucide-react";
 import { useGlobalContext } from "../context/GlobalContext";
+import { useNavigate  } from "react-router-dom";
 
 interface NavbarProps {
   onOpenLogin: () => void;
@@ -7,7 +8,8 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
-  const { user, logout, loading } = useGlobalContext();
+  const { user } = useGlobalContext();
+  const navigate = useNavigate();
 
   return (
     <header className="fixed top-4 left-1/2 z-30 flex -translate-x-1/2 items-center justify-between w-[92%] max-w-5xl rounded-2xl border border-white/40 bg-white/80 px-4 py-3 shadow-lg backdrop-blur-md">
@@ -23,9 +25,10 @@ export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
       <div className="flex items-center gap-2 sm:gap-3">
         {user ? (
           /* =========================================
-             LOGGED IN STATE: Shows User info & Logout
+             LOGGED IN STATE: Shows User info
              ========================================= */
           <div className="flex items-center gap-2 sm:gap-3">
+            <button onClick={() => navigate("/profile")}>
             <div className="flex items-center gap-2 rounded-xl bg-blue-50/80 px-3 py-1.5 text-xs sm:text-sm font-semibold text-blue-700 border border-blue-100">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs">
                 {user.name ? user.name.charAt(0).toUpperCase() : <User size={12} />}
@@ -34,15 +37,6 @@ export default function Navbar({ onOpenLogin, onOpenRegister }: NavbarProps) {
                 {user.name || "Logged In"}
               </span>
             </div>
-
-            <button
-              type="button"
-              onClick={logout}
-              disabled={loading}
-              className="flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-2 text-xs sm:text-sm font-semibold text-gray-600 transition hover:bg-red-50 hover:border-red-200 hover:text-red-600 disabled:opacity-50"
-            >
-              <LogOut size={16} />
-              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         ) : (
