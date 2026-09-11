@@ -11,7 +11,7 @@ import {
   updateCompanyLocationController,
   deleteCompanyLocationController,
 } from "../controller/company.controller.js";
-import { createJobController,getAllCompanyJobsController,getCompanyJobController } from "../controller/job.controller.js";
+import { createJobController,getCompanyAllJobsController,getCompanyJobController } from "../controller/job.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 
 companyRouter.post("/", authenticate, createCompanyController);
@@ -25,7 +25,7 @@ companyRouter.patch("/:companyId/locations/:locationId", authenticate, updateCom
 companyRouter.delete("/:companyId/locations/:locationId", authenticate, deleteCompanyLocationController);
 
 companyRouter.post("/:companyId/jobs",authenticate,createJobController)
-companyRouter.get("/:companyId/jobs",authenticate,getAllCompanyJobsController)
+companyRouter.get("/:companyId/jobs",authenticate,getCompanyAllJobsController)
 companyRouter.get("/:companyId/job/:jobId",getCompanyJobController)
 
 

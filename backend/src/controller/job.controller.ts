@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import { createJobSchema } from "../types/job.schema.js";
 import {
   createJobService,
-  getAllCompanyJobService,
+  getCompanyAllJobService,
   getCompanyJobService
 } from "../services/job.service.js";
 
@@ -61,29 +61,42 @@ export const createJobController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllCompanyJobsController = async (
+export const getCompanyAllJobsController = async (
   req: Request,
-  res: Response,
+  res: Response
 ) => {
   try {
     const { companyId } = req.params;
-    if (typeof companyId !== "string") {
+
+    if (!companyId || typeof companyId !== "string") {
       return res.status(400).json({
         message: "Invalid company ID",
       });
     }
-    const companyJobs = await getAllCompanyJobService(companyId);
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.max(1, Number(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+
+    const result = await getCompanyAllJobService(companyId, page, limit, skip);
+
     return res.status(200).json({
-      message: "company's all jobs data fetched successfully",
-      data: companyJobs,
+      message: "Company jobs fetched successfully",
+      data: result.jobs,
+      pagination: result.pagination,
     });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err);
-    return res
-      .status(500)
-      .json({
-        message: "Error while getting company job, Please try again later",
+
+    if (err instanceof Error && err.message === "Company not found") {
+      return res.status(404).json({
+        message: err.message,
       });
+    }
+
+    return res.status(500).json({
+      message: "Error while getting company jobs. Please try again later.",
+    });
   }
 };
 

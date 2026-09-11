@@ -73,20 +73,50 @@ export const createJobService = async (
 };
 
 
-export const getAllCompanyJobService = async (companyId:string) => {
-    const companyJob = await prisma.company.findUnique({
-      where : {
-        id : companyId
+export const getCompanyAllJobService = async (
+  companyId: string,
+  page: number,
+  limit: number,
+  skip: number
+) => {
+  // 1. Verify company exists
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { id: true },
+  });
+
+  if (!company) {
+    throw new Error("Company not found");
+  }
+
+  // 2. Fetch jobs and total count concurrently
+  const [jobs, totalCount] = await Promise.all([
+    prisma.job.findMany({
+      where: { companyId },
+      include: {
+        location: true, // includes location details if needed
       },
-      include : {
-        jobs : true
-      }
-    })
-    if(!companyJob){
-      throw new Error("No Jobs found");
-    }
-    return companyJob?.jobs
-}
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.job.count({
+      where: { companyId },
+    }),
+  ]);
+
+  return {
+    jobs,
+    pagination: {
+      total: totalCount,
+      page,
+      limit,
+      totalPages: Math.ceil(totalCount / limit),
+    },
+  };
+};
 
 export const getCompanyJobService = async (companyId: string, jobId: string) => {
   const companyJob = await prisma.job.findUnique({
