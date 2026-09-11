@@ -7,4 +7,5 @@ export interface GlobalContextType {
   register: (data: UserRegisterData) => Promise<void>;
   login: (data: UserLoginData) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (user: User) => void;
 }

@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, type ReactNode, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+  useEffect,
+} from "react";
 import type { User, UserLoginData, UserRegisterData } from "../types/user.type";
 import type { GlobalContextType } from "../types/global.type";
 import { registerUser, logOutUser, loginUser } from "../api/auth.api";
@@ -12,44 +18,48 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      try{
+      try {
         setLoading(true);
         const userProfile = await getUserProfile();
         setUser(userProfile.data);
-      }catch(err : any){
-        console.log(err.message)
-      }finally{
-        setLoading(false)
+      } catch (err: any) {
+        console.log(err.message);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
     fetchUserProfile();
-  },[])
+  }, []);
 
- const register = async (data: UserRegisterData) => {
-  try {
-    setLoading(true);
-    const response = await registerUser(data);
-    setUser(response.data); // ✅ Was response.user
-  } catch (err) {
-    console.error(err);
-    throw err; // ✅ Must rethrow so Register.tsx can catch it
-  } finally {
-    setLoading(false);
-  }
+  const register = async (data: UserRegisterData) => {
+    try {
+      setLoading(true);
+      const response = await registerUser(data);
+      setUser(response.data); // ✅ Was response.user
+    } catch (err) {
+      console.error(err);
+      throw err; // ✅ Must rethrow so Register.tsx can catch it
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUser = (updatedUser: User) => {
+  setUser(updatedUser);
 };
 
   const login = async (data: UserLoginData) => {
-  try {
-    setLoading(true);
-    const response = await loginUser(data);
-    setUser(response.data); // ✅ Was response.user
-  } catch (err) {
-    console.error(err);
-    throw err;
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const response = await loginUser(data);
+      setUser(response.data); // ✅ Was response.user
+    } catch (err) {
+      console.error(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const logout = async () => {
     try {
@@ -65,15 +75,16 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <GlobalContext.Provider
-      value={{
-        user,
-        login,
-        isAuthenticated: user !== null,
-        register,
-        logout,
-        loading,
-      }}
-    >
+  value={{
+    user,
+    login,
+    isAuthenticated: user !== null,
+    register,
+    logout,
+    loading,
+    updateUser,
+  }}
+>
       {children}
     </GlobalContext.Provider>
   );

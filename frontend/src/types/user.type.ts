@@ -29,3 +29,7 @@ export interface UserLocationType {
   longitude? : number
   pincode: string;
 }
+
+export interface UserUpdateDataTyep{
+  name : string
+}
