@@ -1,32 +1,51 @@
 # Discover
 
-Discover is a full-stack web application for exploring and discovering companies through an interactive, location-based map.
+> A full-stack location-based company discovery platform built with React, TypeScript, Node.js, PostgreSQL, PostGIS, and Prisma.
 
-The project is currently under active development. The core application architecture and several major features have already been implemented, with additional functionality being developed.
+**Status:** 🚧 In active development
 
-## 🚧 Project Status
+## Overview
 
-**Work in Progress**
+Discover helps users explore companies through an interactive map. The application combines geolocation, distance calculation, map-based company markers, company details, and a REST API backed by PostgreSQL/PostGIS.
 
-Discover is an actively developed project. Features, architecture, and UI are continuously being improved as development progresses.
+The project is intentionally being developed as a production-oriented full-stack application, with additional features and deployment improvements planned as development continues.
 
-## ✨ Features
+## ✨ Current Features
 
 - 🗺️ Interactive map-based company discovery
 - 📍 User geolocation
 - 📏 Distance calculation between the user and companies
-- 🏢 Company markers on the map
-- 💬 Interactive company popups
+- 🏢 Company markers and interactive popups
 - 🔎 Company detail pages
 - 🧭 Client-side navigation
 - 🔌 REST APIs for company data
 - 🗄️ Database-backed company information
 - 📱 Responsive user interface
 
+## 🏗️ Architecture
+
+```text
+┌─────────────────────────┐
+│   React + TypeScript    │
+│     Frontend / UI       │
+└────────────┬────────────┘
+             │ REST API
+             ▼
+┌─────────────────────────┐
+│ Node.js + Express + TS  │
+│        Backend          │
+└────────────┬────────────┘
+             │ Prisma ORM
+             ▼
+┌─────────────────────────┐
+│ PostgreSQL + PostGIS    │
+│   Location-aware data   │
+└─────────────────────────┘
+```
+
 ## 🛠️ Tech Stack
 
-### Frontend
-
+**Frontend**
 - React
 - TypeScript
 - Tailwind CSS
@@ -34,36 +53,30 @@ Discover is an actively developed project. Features, architecture, and UI are co
 - MapLibre
 - Motion
 
-### Backend
-
+**Backend**
 - Node.js
 - Express
 - TypeScript
 
-### Database
-
+**Database**
 - PostgreSQL
 - PostGIS
 - Prisma ORM
 
-## 🏗️ Architecture
+## 🎯 Why I Built It
 
-```text
-┌─────────────────────┐
-│      React App      │
-│     TypeScript      │
-└──────────┬──────────┘
-           │
-           │ REST API
-           ▼
-┌─────────────────────┐
-│   Express Backend   │
-│     Node.js + TS    │
-└──────────┬──────────┘
-           │
-           │ Prisma ORM
-           ▼
-┌─────────────────────┐
-│     PostgreSQL      │
-│       PostGIS       │
-└─────────────────────┘
+Discover is a practical project for learning and applying full-stack engineering concepts including REST API design, database modeling, geospatial data, frontend routing, map-based interfaces, and the separation of frontend and backend responsibilities.
+
+## 🚧 Roadmap
+
+Planned improvements include additional discovery and filtering capabilities, production deployment, containerization, and automated CI/CD as the project matures.
+
+## 👨‍💻 Author
+
+**Devacharya**
+
+GitHub: https://github.com/devacharya80
+
+---
+
+> This repository is a work in progress. Features and architecture may change as development continues.
