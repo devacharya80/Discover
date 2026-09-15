@@ -1,49 +1,49 @@
-# Discover
+# Discover — Geospatial Company Discovery Platform
 
-> A full-stack location-based company discovery platform built with React, TypeScript, Node.js, PostgreSQL, PostGIS, and Prisma.
+> A full-stack company discovery platform that combines interactive maps, geolocation, distance-based discovery, and a PostgreSQL/PostGIS backend.
 
-**Status:** 🚧 In active development
+**Status:** 🚧 Active development
 
 ## Overview
 
-Discover helps users explore companies through an interactive map. The application combines geolocation, distance calculation, map-based company markers, company details, and a REST API backed by PostgreSQL/PostGIS.
+Discover helps users find and explore companies through an interactive map. It combines a React/TypeScript frontend with a Node.js/Express API and a PostgreSQL database using PostGIS for location-aware data.
 
-The project is intentionally being developed as a production-oriented full-stack application, with additional features and deployment improvements planned as development continues.
+The project is designed around a clean separation between the UI, API, and persistence layers.
 
-## ✨ Current Features
+## Key Features
 
 - 🗺️ Interactive map-based company discovery
-- 📍 User geolocation
-- 📏 Distance calculation between the user and companies
+- 📍 Browser geolocation
+- 📏 Distance calculation between users and companies
 - 🏢 Company markers and interactive popups
 - 🔎 Company detail pages
-- 🧭 Client-side navigation
-- 🔌 REST APIs for company data
-- 🗄️ Database-backed company information
-- 📱 Responsive user interface
+- 🧭 Client-side routing
+- 🔌 REST API for company data
+- 🗄️ PostgreSQL/PostGIS-backed location data
+- 📱 Responsive interface
 
-## 🏗️ Architecture
+## Architecture
 
 ```text
-┌─────────────────────────┐
-│   React + TypeScript    │
-│     Frontend / UI       │
-└────────────┬────────────┘
-             │ REST API
-             ▼
-┌─────────────────────────┐
-│ Node.js + Express + TS  │
-│        Backend          │
-└────────────┬────────────┘
-             │ Prisma ORM
-             ▼
-┌─────────────────────────┐
-│ PostgreSQL + PostGIS    │
-│   Location-aware data   │
-└─────────────────────────┘
+┌────────────────────────────┐
+│     React + TypeScript     │
+│  Map UI / Routing / Views  │
+└─────────────┬──────────────┘
+              │ REST API
+              ▼
+┌────────────────────────────┐
+│   Node.js + Express + TS   │
+│      API / Business Logic  │
+└─────────────┬──────────────┘
+              │ Prisma ORM
+              ▼
+┌────────────────────────────┐
+│      PostgreSQL + PostGIS  │
+│     Location-aware data    │
+└────────────────────────────┘
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Frontend**
 - React
@@ -57,26 +57,43 @@ The project is intentionally being developed as a production-oriented full-stack
 - Node.js
 - Express
 - TypeScript
+- REST APIs
 
-**Database**
+**Data**
 - PostgreSQL
 - PostGIS
 - Prisma ORM
 
-## 🎯 Why I Built It
+## Engineering Highlights
 
-Discover is a practical project for learning and applying full-stack engineering concepts including REST API design, database modeling, geospatial data, frontend routing, map-based interfaces, and the separation of frontend and backend responsibilities.
+- Separates frontend, backend, and persistence concerns
+- Uses geospatial database capabilities rather than treating location as plain text
+- Uses Prisma as the data-access layer over PostgreSQL
+- Exposes company data through a backend API
+- Builds map interactions around real user geolocation
 
-## 🚧 Roadmap
+## Project Structure
 
-Planned improvements include additional discovery and filtering capabilities, production deployment, containerization, and automated CI/CD as the project matures.
+```text
+Discover/
+├── frontend/   # React + TypeScript application
+├── backend/    # Node.js + Express API
+└── README.md
+```
 
-## 👨‍💻 Author
+## Roadmap
 
-**Devacharya**
+- Advanced search and filtering
+- Production deployment
+- Dockerized development/production setup
+- Automated tests
+- CI/CD
+- Natural-language discovery using retrieval/LLM workflows
 
-GitHub: https://github.com/devacharya80
+> The RAG/LLM functionality is part of the roadmap and is not represented as a completed feature yet.
 
----
+## Author
 
-> This repository is a work in progress. Features and architecture may change as development continues.
+**Devacharya** — Full-Stack Developer | MERN | TypeScript | AI
+
+[GitHub](https://github.com/devacharya80)
