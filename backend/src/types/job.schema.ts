@@ -109,3 +109,21 @@ export const updateJobSchema = z
 
 export type CreateJobData = z.infer<typeof createJobSchema>;
 export type UpdateJobData = z.infer<typeof updateJobSchema>;
+
+export const paginationSchema = z.object({
+  page: z.coerce
+    .number()
+    .int()
+    .min(1, "Page must be at least 1")
+    .default(1),
+
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1, "Limit must be at least 1")
+    .max(50, "Limit cannot exceed 50")
+    .default(10),
+    
+});
+
+export type PaginationData = z.infer<typeof paginationSchema>;

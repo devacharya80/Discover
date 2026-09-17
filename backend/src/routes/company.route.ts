@@ -9,9 +9,14 @@ import {
   createCompanyLocationController,
   getCompanyLocationController,
   updateCompanyLocationController,
-  deleteCompanyLocationController,
+  deleteCompanyLocationController
 } from "../controller/company.controller.js";
-import { createJobController,getCompanyAllJobsController,getCompanyJobController } from "../controller/job.controller.js";
+import {
+  createJobController,
+  getCompanyAllJobsController,
+  getCompanyJobController,
+  updateCompanyJobController
+} from "../controller/job.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 
 companyRouter.post("/", authenticate, createCompanyController);
@@ -27,6 +32,7 @@ companyRouter.delete("/:companyId/locations/:locationId", authenticate, deleteCo
 companyRouter.post("/:companyId/jobs",authenticate,createJobController)
 companyRouter.get("/:companyId/jobs",authenticate,getCompanyAllJobsController)
 companyRouter.get("/:companyId/job/:jobId",getCompanyJobController)
+companyRouter.patch("/:companyId/job/:jobId",authenticate,updateCompanyJobController)
 
 
 export default companyRouter;
