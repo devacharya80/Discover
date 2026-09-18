@@ -1,13 +1,17 @@
 import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import { createToken } from "../lib/jwt.js";
-import type { RegisterType, AuthResponse, LoginType } from "../types/auth.schema.js";
+import type {
+  RegisterType,
+  AuthResponse,
+  LoginType,
+} from "../types/auth.schema.js";
 
-export const registerService = async (registerData: RegisterType): Promise<AuthResponse> => {
+export const registerService = async (
+  registerData: RegisterType,
+): Promise<AuthResponse> => {
   const existingUser = await prisma.user.findUnique({
-    where: {
-      email: registerData.email,
-    },
+    where: { email: registerData.email },
   });
 
   if (existingUser) {
@@ -17,21 +21,26 @@ export const registerService = async (registerData: RegisterType): Promise<AuthR
   const hashedPassword = await bcrypt.hash(registerData.password, 10);
 
   const newUser = await prisma.user.create({
-  data: {
-    name: registerData.name,
-    email: registerData.email,
-    password: hashedPassword,
-
-    ...(registerData.location && {
-      location: {
-        create: registerData.location,
-      },
-    }),
-  },
-  include : {
-    location : true
-  }
-});
+    data: {
+      name: registerData.name,
+      email: registerData.email,
+      password: hashedPassword,
+      ...(registerData.location && {
+        location: {
+          create: {
+            address: registerData.location.address,
+            city: registerData.location.city,
+            state: registerData.location.state,
+            country: registerData.location.country,
+            latitude: registerData.location.latitude ?? null,
+            longitude: registerData.location.longitude ?? null,
+            pincode: registerData.location.pincode,
+          },
+        },
+      }),
+    },
+    include: { location: true },
+  });
 
   const token = createToken(newUser.id, newUser.role);
 
@@ -40,25 +49,37 @@ export const registerService = async (registerData: RegisterType): Promise<AuthR
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
-      location: registerData.location ?? null
+      ...(newUser.location && {
+        location: {
+          address: newUser.location.address,
+          city: newUser.location.city,
+          state: newUser.location.state,
+          country: newUser.location.country,
+          latitude: newUser.location.latitude,
+          longitude: newUser.location.longitude,
+          pincode: newUser.location.pincode,
+        },
+      }),
     },
     token,
   };
 };
 
-export const loginService = async (userData: LoginType): Promise<AuthResponse> => {
+export const loginService = async (
+  userData: LoginType,
+): Promise<AuthResponse> => {
   const existingUser = await prisma.user.findUnique({
-    where: {
-      email: userData.email,
-    },
+    where: { email: userData.email },
   });
 
-  // Generic message prevents account enumeration
   if (!existingUser || !existingUser.password) {
     throw new Error("User Not Found");
   }
 
-  const isPasswordValid = await bcrypt.compare(userData.password, existingUser.password);
+  const isPasswordValid = await bcrypt.compare(
+    userData.password,
+    existingUser.password,
+  );
 
   if (!isPasswordValid) {
     throw new Error("Invalid credentials");
