@@ -1,35 +1,13 @@
 export interface UserRegisterData {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  location? : UserLocationType
+  name: string; email: string; password: string; confirmPassword: string; location?: UserLocationType;
 }
-
-export interface UserLoginData {
-  email: string;
-  password: string;
-}
-
+export interface UserLoginData { email: string; password: string; }
 export interface User {
-  id: string;
-  name: string;
-  email: string;
-  location? : UserLocationType
+  id: string; name: string; email: string; role: "USER" | "ADMIN"; location?: UserLocationType;
 }
-
-export interface UpdateUserProfileType {}
-
 export interface UserLocationType {
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  latitude? : number,
-  longitude? : number
-  pincode: string;
+  address: string; city: string; state: string; country: string;
+  latitude?: number | null; longitude?: number | null; pincode: string;
 }
-
-export interface UserUpdateDataTyep{
-  name : string
-}
+export interface UserUpdateDataType { name?: string; location?: Partial<UserLocationType>; }
+export type UserUpdateDataTyep = UserUpdateDataType;
