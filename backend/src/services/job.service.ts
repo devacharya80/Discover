@@ -48,9 +48,13 @@ export const getCompanyAllJobService = async (companyId: string, query: JobQuery
     ...(mode && { mode }),
     ...(experienceLevel && { experienceLevel }),
     ...(search && {
-      OR: [
-        { title: { contains: search, mode: "insensitive" as const } },
-        { description: { contains: search, mode: "insensitive" as const } },
+      AND: [
+        {
+          OR: [
+            { title: { contains: search, mode: "insensitive" as const } },
+            { description: { contains: search, mode: "insensitive" as const } },
+          ],
+        },
       ],
     }),
   };
