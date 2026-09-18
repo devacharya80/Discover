@@ -10,6 +10,7 @@ import SavedJobs from "./pages/profilePage/components/SavedJobs";
 import Settings from "./pages/profilePage/components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CompanyManage from "./pages/companyPages/CompanyManage";
+import CreateCompany from "./pages/companyPages/CreateCompany";
 
 function App() {
   return <Routes>
@@ -20,6 +21,7 @@ function App() {
       <Route path="job/:jobId" element={<JobDetails />} />
       <Route element={<ProtectedRoute />}>
         <Route path="company/:companyId/manage" element={<CompanyManage />} />
+        <Route path="company/create" element={<CreateCompany />} />
         <Route path="profile" element={<ProfileMenu />}>
           <Route index element={<ProfileHome />} />
           <Route path="me" element={<MyProfile />} />
