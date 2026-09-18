@@ -34,7 +34,7 @@ function CompanyTabs({ company }: CompanyTabProps) {
 
       {activeTab === "about" && <About company={company} />}
       {activeTab === "jobs" && <Jobs />}
-      {activeTab === "people" && <People count={company.companyLocations.length} />}
+      {activeTab === "people" && <People />}
     </div>
   );
 }
