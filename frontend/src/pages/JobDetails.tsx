@@ -1,7 +1,7 @@
 import { useEffect,useState } from "react";
 import { ArrowLeft,ExternalLink,MapPin,Bookmark,CheckCircle2 } from "lucide-react";
 import { useNavigate,useParams } from "react-router-dom";
-import { getCompanyJob,getJob,applyToJob,saveJob,unsaveJob } from "../api/job.api";
+import { getCompanyJob,getJob,applyToJob,saveJob } from "../api/job.api";
 import { useGlobalContext } from "../context/GlobalContext";
 import type { Job } from "../types/job.type";
 const label=(v:string)=>v.replace(/_/g," ").toLowerCase().replace(/(^| )\w/g,m=>m.toUpperCase());
