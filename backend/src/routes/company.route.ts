@@ -1,20 +1,12 @@
 import express from "express";
 const companyRouter = express.Router();
-
 import {
-  createCompanyController,
-  getCompanyController,
-  getAllCompanyController,
-  updateCompanyController,
-  createCompanyLocationController,
-  getCompanyLocationController,
-  updateCompanyLocationController,
-  deleteCompanyLocationController,
+  createCompanyController, getCompanyController, getAllCompanyController,
+  updateCompanyController, createCompanyLocationController, getCompanyLocationController,
+  updateCompanyLocationController, deleteCompanyLocationController,
 } from "../controller/company.controller.js";
 import {
-  createJobController,
-  getCompanyAllJobsController,
-  getCompanyJobController,
+  createJobController, getCompanyAllJobsController, getCompanyJobController,
   updateCompanyJobController,
 } from "../controller/job.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
