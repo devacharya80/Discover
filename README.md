@@ -159,7 +159,7 @@ It requires an authenticated ADMIN user.
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `POST /api/auth/logout`
-- `GET /api/auth/me/:id`
+- `GET /api/auth/me`
 
 ### Users
 
