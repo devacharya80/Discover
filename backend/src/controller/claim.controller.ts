@@ -1,8 +1,13 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { createClaimService, getCompanyClaimsService, getUserClaimsService, reviewClaimService } from "../services/claim.service.js";
+import { createClaimService, getCompanyClaimsService, getPendingClaimsAdminService, getUserClaimsService, reviewClaimService } from "../services/claim.service.js";
 
 const reviewSchema = z.object({ status: z.enum(["APPROVED", "REJECTED"]) });
+
+export const getPendingClaimsAdminController = async (req: Request, res: Response) => {
+  try { return res.json({ message: "Pending claims fetched successfully", data: await getPendingClaimsAdminService(req.user.userId) }); }
+  catch (err) { const message=err instanceof Error?err.message:""; if(message==="Admin access required") return res.status(403).json({message}); return res.status(500).json({message:"Unable to fetch pending claims"}); }
+};
 
 export const createClaimController = async (req: Request, res: Response) => {
   try {
