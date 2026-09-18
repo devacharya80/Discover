@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { useParams } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 
 import { getCompany } from "../../api/company.api";
 import type { CompanyWithLocations } from "../../types/company.type";
@@ -86,6 +86,7 @@ function CompanyDetails() {
         <>
         <CompanyHeader company={company} />
         <CompanyTab company={company}/>
+        <Outlet />
         </>
       )}
     </motion.aside>
