@@ -8,6 +8,8 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://discover:discover@localhost:5432/discover
     defaults:
       run:
         working-directory: backend
