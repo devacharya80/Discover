@@ -18,5 +18,7 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/src/generated ./src/generated
 COPY prisma ./prisma
 COPY prisma.config.ts ./
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 EXPOSE 5000
-CMD ["node","dist/server.js"]
+CMD ["./docker-entrypoint.sh"]
