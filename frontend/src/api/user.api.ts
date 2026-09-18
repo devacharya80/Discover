@@ -6,7 +6,7 @@ export const getUserProfile = async () => {
     return response.data
 }
 
-export const updateUserProfile = async (data : UpdateUserProfileType) => {
+export const updateUserProfile = async (data: UserUpdateDataType) => {
     const response = await api.patch("/user/profile",data)
     return response.data
 }
