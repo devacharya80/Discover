@@ -56,6 +56,7 @@ export interface UserType {
   id: string;
   email: string;
   name: string;
+  role: "USER" | "ADMIN";
   location: UserLocationType | null;
   companyMembers: CompanyMemberType[];
 }
