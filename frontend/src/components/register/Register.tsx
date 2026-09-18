@@ -37,8 +37,8 @@ function Register({ onClose, onSwitchToLogin }: RegisterProps) {
   const handleAccountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (registerData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (registerData.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
       return;
     }
 
@@ -62,8 +62,9 @@ function Register({ onClose, onSwitchToLogin }: RegisterProps) {
     try {
       await register(registerData);
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Registration failed:", err);
+      setError(err?.response?.data?.message ?? "Registration failed. Please try again.");
     }
   };
 
@@ -74,8 +75,9 @@ function Register({ onClose, onSwitchToLogin }: RegisterProps) {
         location: undefined,
       });
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Registration failed:", err);
+      setError(err?.response?.data?.message ?? "Registration failed. Please try again.");
     }
   };
 
