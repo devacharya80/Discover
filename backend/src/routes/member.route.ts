@@ -1,9 +1,10 @@
 import express from "express";
 import { authenticate } from "../middleware/auth.middleware.js";
-import { addCompanyMemberController, getCompanyMembersController, removeCompanyMemberController, updateCompanyMemberController } from "../controller/member.controller.js";
+import { addCompanyMemberController, getCompanyMembersController, getManageCompanyMembersController, removeCompanyMemberController, updateCompanyMemberController } from "../controller/member.controller.js";
 const router = express.Router();
 router.get("/companies/:companyId", getCompanyMembersController);
 router.use(authenticate);
+router.get("/companies/:companyId/manage", getManageCompanyMembersController);
 router.post("/companies/:companyId", addCompanyMemberController);
 router.patch("/companies/:companyId/:memberId", updateCompanyMemberController);
 router.delete("/companies/:companyId/:memberId", removeCompanyMemberController);
