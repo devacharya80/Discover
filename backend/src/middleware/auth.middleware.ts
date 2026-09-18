@@ -2,26 +2,12 @@ import type { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../lib/jwt.js";
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  // Read the token cookie set during login/registration
   const token = req.cookies?.token;
-
-  // if (!token) {
-  //   return res.status(401).json({
-  //     message: "Authentication required. No token provided.",
-  //   });
-  // }
-
-  if (!token) {
-    throw new Error("Token required");
-  }
-
+  if (!token) return res.status(401).json({ message: "Authentication required" });
   try {
-    const decoded = verifyToken(token);
-    req.user = decoded; 
+    req.user = verifyToken(token);
     return next();
-  } catch (error) {
-    return res.status(401).json({
-      message: "Invalid or expired token.",
-    });
+  } catch {
+    return res.status(401).json({ message: "Invalid or expired session" });
   }
 };
