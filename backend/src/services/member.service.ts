@@ -69,3 +69,9 @@ export const removeCompanyMemberService = async (actorId: string, companyId: str
   }
   return prisma.companyMember.delete({ where: { id: memberId } });
 };
+
+export const getManageCompanyMembersService = async (actorId:string, companyId:string) => {
+  const actor = await prisma.companyMember.findUnique({ where:{userId_companyId:{userId:actorId,companyId}}, select:{role:true} });
+  if(!actor || !canManage(actor.role)) throw new Error("You are not authorized to manage members");
+  return prisma.companyMember.findMany({ where:{companyId}, orderBy:{createdAt:"asc"}, select:{id:true,role:true,createdAt:true,user:{select:{id:true,name:true,email:true}}} });
+};
