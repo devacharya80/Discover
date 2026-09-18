@@ -8,7 +8,7 @@ export const getCompanyMembersService = async (companyId: string) =>
     orderBy: { createdAt: "asc" },
     select: {
       id: true, role: true, createdAt: true,
-      user: { select: { id: true, name: true, email: true } },
+      user: { select: { id: true, name: true } },
     },
   });
 
