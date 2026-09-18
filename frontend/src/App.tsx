@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CompanyManage from "./pages/companyPages/CompanyManage";
 import CreateCompany from "./pages/companyPages/CreateCompany";
 import Admin from "./pages/Admin";
+import CompanyMembers from "./pages/companyPages/CompanyMembers";
 
 function App() {
   return <Routes>
@@ -22,6 +23,7 @@ function App() {
       <Route path="job/:jobId" element={<JobDetails />} />
       <Route element={<ProtectedRoute />}>
         <Route path="company/:companyId/manage" element={<CompanyManage />} />
+        <Route path="company/:companyId/manage/team" element={<CompanyMembers />} />
         <Route path="company/create" element={<CreateCompany />} />
         <Route path="admin" element={<Admin />} />
         <Route path="profile" element={<ProfileMenu />}>
