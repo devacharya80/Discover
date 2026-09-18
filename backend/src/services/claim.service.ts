@@ -74,3 +74,5 @@ export const reviewClaimService = async (
     return updated;
   });
 };
+
+export const getPendingClaimsAdminService = async (userId: string) => { const user = await prisma.user.findUnique({ where:{id:userId}, select:{role:true} }); if(user?.role!=="ADMIN") throw new Error("Admin access required"); return prisma.companyClaimRequest.findMany({ where:{status:"PENDING"}, orderBy:{requestedAt:"asc"}, include:{ user:{select:{id:true,name:true,email:true}}, company:{select:{id:true,name:true,logoUrl:true,verificationStatus:true}} } }); };
