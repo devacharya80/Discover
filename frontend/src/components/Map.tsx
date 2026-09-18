@@ -22,6 +22,7 @@ function MapView() {
   const distanceCacheRef = useRef<Map<string, number>>(new Map());
 
   const [companies, setCompanies] = useState<CompanyWithLocations[]>([]);
+  const [companySearch, setCompanySearch] = useState("");
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -160,6 +161,11 @@ function MapView() {
     );
   };
 
+  const visibleCompanies = companies.filter((company) => {
+    const query = companySearch.trim().toLowerCase();
+    return !query || company.name.toLowerCase().includes(query) || company.industry.toLowerCase().includes(query) || company.companyLocations.some((location) => location.city.toLowerCase().includes(query));
+  });
+
   // --------------------------------------------------
   // Create company markers
   // --------------------------------------------------
@@ -176,7 +182,7 @@ function MapView() {
 
     companyMarkersRef.current = [];
 
-    companies.forEach((company) => {
+    visibleCompanies.forEach((company) => {
       company.companyLocations.forEach((location) => {
         if (
           location.latitude === null ||
@@ -428,7 +434,7 @@ function MapView() {
         companyMarkersRef.current.push(marker);
       });
     });
-  }, [companies, navigate, userLocation]);
+  }, [visibleCompanies, navigate, userLocation]);
 
   // --------------------------------------------------
   // Render
@@ -442,6 +448,10 @@ function MapView() {
         ref={mapContainer}
         className="h-full w-full"
       />
+
+      <div className="absolute right-4 top-24 z-10 w-[min(300px,calc(100vw-32px))]">
+        <input value={companySearch} onChange={(e) => setCompanySearch(e.target.value)} placeholder="Search companies or cities..." className="w-full rounded-xl border border-gray-200 bg-white/95 px-4 py-3 text-sm shadow-lg outline-none focus:ring-2 focus:ring-gray-200" />
+      </div>
 
       {/* Locate me button */}
 
