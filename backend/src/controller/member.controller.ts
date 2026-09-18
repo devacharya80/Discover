@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { addCompanyMemberService, getCompanyMembersService, removeCompanyMemberService, updateCompanyMemberService } from "../services/member.service.js";
+import { addCompanyMemberService, getCompanyMembersService, getManageCompanyMembersService, removeCompanyMemberService, updateCompanyMemberService } from "../services/member.service.js";
 
 const memberSchema = z.object({
   email: z.string().email(),
@@ -13,6 +13,11 @@ export const getCompanyMembersController = async (req: Request, res: Response) =
     if (typeof companyId !== "string") return res.status(400).json({ message: "Invalid company ID" });
     return res.json({ message: "Company members fetched successfully", data: await getCompanyMembersService(companyId) });
   } catch { return res.status(500).json({ message: "Unable to fetch company members" }); }
+};
+
+export const getManageCompanyMembersController = async (req: Request, res: Response) => {
+  try { const companyId=req.params.companyId; if(typeof companyId!=="string") return res.status(400).json({message:"Invalid company ID"}); return res.json({message:"Company members fetched successfully",data:await getManageCompanyMembersService(req.user.userId,companyId)}); }
+  catch(err){ const message=err instanceof Error?err.message:""; if(message.includes("not authorized")) return res.status(403).json({message}); return res.status(500).json({message:"Unable to fetch company members"}); }
 };
 
 export const addCompanyMemberController = async (req: Request, res: Response) => {
