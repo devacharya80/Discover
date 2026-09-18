@@ -4,23 +4,17 @@ import type { JobQueryData } from "../types/job.query.schema.js";
 
 export const createJobService = async (userId: string, companyId: string, jobData: CreateJobData) => {
   return prisma.$transaction(async (tx) => {
-    const companyMember = await tx.companyMember.findUnique({
-      where: { userId_companyId: { userId, companyId } },
-    });
-
+    const companyMember = await tx.companyMember.findUnique({ where: { userId_companyId: { userId, companyId } } });
     if (!companyMember || !["ADMIN", "OWNER", "RECRUITER"].includes(companyMember.role)) {
       throw new Error("User is not authorized to create a job");
     }
 
     if (jobData.locationId) {
-      const location = await tx.companyLocation.findFirst({
-        where: { id: jobData.locationId, companyId },
-      });
+      const location = await tx.companyLocation.findFirst({ where: { id: jobData.locationId, companyId } });
       if (!location) throw new Error("Location does not belong to this company");
     }
 
     const { locationId, ...jobFields } = jobData;
-
     return tx.job.create({
       data: {
         ...jobFields,
@@ -68,8 +62,6 @@ export const getCompanyAllJobService = async (companyId: string, query: JobQuery
         id: true, title: true, description: true, type: true, mode: true,
         experienceLevel: true, skills: true, salaryMin: true, salaryMax: true,
         externalLink: true, source: true, status: true, expiresAt: true,
-        externalLocationName: true, externalCity: true, externalState: true,
-        externalCountry: true, externalLatitude: true, externalLongitude: true,
         createdAt: true, updatedAt: true,
         location: {
           select: { id: true, name: true, address: true, city: true, state: true, pincode: true },
@@ -83,7 +75,6 @@ export const getCompanyAllJobService = async (companyId: string, query: JobQuery
   ]);
 
   const totalPages = Math.ceil(totalCount / limit);
-
   return {
     jobs,
     pagination: {
@@ -125,15 +116,13 @@ export const updateCompanyJobService = async (
 
   if (jobData.locationId) {
     const location = await prisma.companyLocation.findFirst({
-      where: { id: jobData.locationId, companyId },
-      select: { id: true },
+      where: { id: jobData.locationId, companyId }, select: { id: true },
     });
     if (!location) throw new Error("Location does not belong to this company");
   }
 
   const finalSalaryMin = jobData.salaryMin !== undefined ? jobData.salaryMin : job.salaryMin;
   const finalSalaryMax = jobData.salaryMax !== undefined ? jobData.salaryMax : job.salaryMax;
-
   if (finalSalaryMin !== null && finalSalaryMax !== null && finalSalaryMin > finalSalaryMax) {
     throw new Error("Minimum salary cannot be greater than maximum salary");
   }
