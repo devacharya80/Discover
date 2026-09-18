@@ -1,0 +1,11 @@
+import express from "express";
+import { authenticate } from "../middleware/auth.middleware.js";
+import { applyToJobController, getCompanyApplicationsController, getUserApplicationsController, updateApplicationStatusController, withdrawApplicationController } from "../controller/application.controller.js";
+const router = express.Router();
+router.use(authenticate);
+router.post("/jobs/:jobId/apply", applyToJobController);
+router.get("/user/applications", getUserApplicationsController);
+router.patch("/user/applications/:applicationId/withdraw", withdrawApplicationController);
+router.get("/companies/:companyId/applications", getCompanyApplicationsController);
+router.patch("/companies/:companyId/applications/:applicationId", updateApplicationStatusController);
+export default router;
