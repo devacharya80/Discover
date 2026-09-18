@@ -1,7 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import healthRouter from "./routes/health.route.js";
 import authRouter from "./routes/auth.route.js";
 import meRouter from "./routes/me.route.js";
 import userRouter from "./routes/user.route.js";
@@ -44,10 +43,7 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 });
 
 const server = app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-
-const shutdown = async () => {
-  server.close(() => process.exit(0));
-};
+const shutdown = () => server.close(() => process.exit(0));
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
