@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import type { UpdateUserProfileType } from "../types/user.type";
+import type { UserUpdateDataType } from "../types/user.type";
 
 export const getUserProfile = async () => {
     const response = await api.get("/user/profile");
