@@ -1,10 +1,11 @@
 import express from "express";
 import { authenticate } from "../middleware/auth.middleware.js";
-import { createClaimController, getCompanyClaimsController, getUserClaimsController, reviewClaimController } from "../controller/claim.controller.js";
+import { createClaimController, getCompanyClaimsController, getPendingClaimsAdminController, getUserClaimsController, reviewClaimController } from "../controller/claim.controller.js";
 const router = express.Router();
 router.use(authenticate);
 router.post("/companies/:companyId", createClaimController);
 router.get("/user", getUserClaimsController);
+router.get("/admin/pending", getPendingClaimsAdminController);
 router.get("/companies/:companyId", getCompanyClaimsController);
 router.patch("/:claimId", reviewClaimController);
 export default router;
