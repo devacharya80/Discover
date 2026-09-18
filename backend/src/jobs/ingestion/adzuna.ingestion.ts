@@ -6,19 +6,11 @@ import { checkDuplicateExternalJob } from "../deduplication/job.deduplication.js
 import { resolveExternalCompany } from "../resolution/company.resolver.js";
 
 export interface AdzunaIngestionOptions {
-  country?: string;
-  page?: number;
-  pages?: number;
-  what?: string;
-  where?: string;
+  country?: string; page?: number; pages?: number; what?: string; where?: string;
 }
 
 export const ingestAdzunaJobs = async ({
-  country = "in",
-  page = 1,
-  pages = 1,
-  what = "software engineer",
-  where,
+  country = "in", page = 1, pages = 1, what = "software engineer", where,
 }: AdzunaIngestionOptions = {}) => {
   const stats = { fetched: 0, inserted: 0, updated: 0, skipped: 0, invalid: 0 };
 
@@ -28,25 +20,49 @@ export const ingestAdzunaJobs = async ({
 
     for (const rawJob of response.results) {
       const validated = validateExternalJob(parseAdzunaJob(rawJob));
-
-      if (!validated) {
-        stats.invalid++;
-        continue;
-      }
+      if (!validated) { stats.invalid++; continue; }
 
       const duplicate = await checkDuplicateExternalJob(validated);
-
       if (duplicate.isDuplicate) {
-        await prisma.externalJob.update({
-          where: { jobId: duplicate.jobId },
-          data: { lastSeenAt: new Date() },
-        }).catch(() => undefined);
-        stats.updated++;
+        if (duplicate.reason === "EXACT_MATCH") {
+          await prisma.$transaction(async (tx) => {
+            const external = await tx.externalJob.update({
+              where: { jobId: duplicate.jobId },
+              data: {
+                lastSeenAt: new Date(),
+                fingerprint: duplicate.fingerprint ?? undefined,
+                externalLocationName: validated.location.name,
+                externalCity: validated.location.city ?? null,
+                externalState: validated.location.state ?? null,
+                externalCountry: validated.location.country ?? null,
+                externalLatitude: validated.location.latitude ?? null,
+                externalLongitude: validated.location.longitude ?? null,
+              },
+            });
+            await tx.job.update({
+              where: { id: external.jobId },
+              data: {
+                title: validated.title,
+                description: validated.description,
+                type: validated.type,
+                mode: validated.mode ?? "REMOTE",
+                experienceLevel: validated.experienceLevel,
+                skills: validated.skills,
+                salaryMin: validated.salaryMin ?? null,
+                salaryMax: validated.salaryMax ?? null,
+                externalLink: validated.applicationUrl,
+                status: "ACTIVE",
+              },
+            });
+          });
+          stats.updated++;
+        } else {
+          stats.skipped++;
+        }
         continue;
       }
 
       const company = await resolveExternalCompany(validated);
-
       await prisma.$transaction(async (tx) => {
         const createdJob = await tx.job.create({
           data: {
@@ -56,7 +72,7 @@ export const ingestAdzunaJobs = async ({
             type: validated.type,
             mode: validated.mode ?? "REMOTE",
             experienceLevel: validated.experienceLevel,
-            skills: validated.skills.length ? validated.skills : ["Software Engineering"],
+            skills: validated.skills,
             salaryMin: validated.salaryMin ?? null,
             salaryMax: validated.salaryMax ?? null,
             externalLink: validated.applicationUrl,
@@ -65,20 +81,23 @@ export const ingestAdzunaJobs = async ({
             createdAt: validated.createdAt,
           },
         });
-
         await tx.externalJob.create({
           data: {
             provider: validated.source,
             externalId: validated.externalId,
             fingerprint: duplicate.fingerprint,
+            externalLocationName: validated.location.name,
+            externalCity: validated.location.city ?? null,
+            externalState: validated.location.state ?? null,
+            externalCountry: validated.location.country ?? null,
+            externalLatitude: validated.location.latitude ?? null,
+            externalLongitude: validated.location.longitude ?? null,
             jobId: createdJob.id,
           },
         });
       });
-
       stats.inserted++;
     }
   }
-
   return stats;
 };
