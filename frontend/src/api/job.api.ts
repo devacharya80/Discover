@@ -1,20 +1,9 @@
 import { api } from "./axios";
 import type { Job, JobsResponse, JobQuery } from "../types/job.type";
-
-export const getCompanyJobs = async (
-  companyId: string,
-  params: JobQuery = {},
-): Promise<JobsResponse> => {
-  const response = await api.get<JobsResponse>("/company/" + companyId + "/jobs", { params });
-  return response.data;
-};
-
-export const getCompanyJob = async (
-  companyId: string,
-  jobId: string,
-): Promise<{ message: string; data: Job }> => {
-  const response = await api.get<{ message: string; data: Job }>(
-    "/company/" + companyId + "/job/" + jobId,
-  );
-  return response.data;
-};
+export const getJobs = async (params:JobQuery={}):Promise<JobsResponse> => (await api.get<JobsResponse>("/jobs",{params})).data;
+export const getJob = async (jobId:string):Promise<{message:string;data:Job}> => (await api.get(`/jobs/${jobId}`)).data;
+export const getCompanyJobs = async (companyId:string,params:JobQuery={}):Promise<JobsResponse> => (await api.get(`/company/${companyId}/jobs`,{params})).data;
+export const getCompanyJob = async (companyId:string,jobId:string):Promise<{message:string;data:Job}> => (await api.get(`/company/${companyId}/job/${jobId}`)).data;
+export const applyToJob = async (jobId:string) => (await api.post(`/jobs/${jobId}/apply`)).data;
+export const saveJob = async (jobId:string) => (await api.post(`/jobs/${jobId}/save`)).data;
+export const unsaveJob = async (jobId:string) => (await api.delete(`/jobs/${jobId}/save`)).data;
