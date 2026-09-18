@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useGlobalContext } from "../../context/GlobalContext";
 import { motion } from "motion/react";
 
