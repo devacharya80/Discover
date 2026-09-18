@@ -3,7 +3,9 @@ generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
-datasource db { provider = "postgresql" }
+datasource db {
+  provider = "postgresql"
+}
 
 model User {
   id String @id @default(uuid())
@@ -19,7 +21,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-enum UserRole { USER ADMIN }
+enum UserRole {
+  USER
+  ADMIN
+}
 
 model UserLocation {
   id String @id @default(uuid())
@@ -59,10 +64,30 @@ model Company {
   @@index([status])
   @@index([name])
 }
-enum CompanySize { SEED_1_10 SMALL_11_50 MEDIUM_51_200 MIDMARKET_201_500 LARGE_501_1000 ENTERPRISE_1000_PLUS }
-enum CompanyStatus { ACTIVE INACTIVE SUSPENDED ARCHIVED }
-enum VerificationStatus { VERIFIED PENDING REJECTED }
-enum CreatedSource { DISCOVERED COMPANY_CREATED ADMIN_CREATED }
+enum CompanySize {
+  SEED_1_10
+  SMALL_11_50
+  MEDIUM_51_200
+  MIDMARKET_201_500
+  LARGE_501_1000
+  ENTERPRISE_1000_PLUS
+}
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+enum VerificationStatus {
+  VERIFIED
+  PENDING
+  REJECTED
+}
+enum CreatedSource {
+  DISCOVERED
+  COMPANY_CREATED
+  ADMIN_CREATED
+}
 
 model CompanyMember {
   id String @id @default(uuid())
@@ -76,7 +101,11 @@ model CompanyMember {
   @@unique([userId, companyId])
   @@index([companyId, role])
 }
-enum CompanyRole { ADMIN OWNER RECRUITER }
+enum CompanyRole {
+  ADMIN
+  OWNER
+  RECRUITER
+}
 
 model CompanyLocation {
   id String @id @default(uuid())
@@ -132,11 +161,37 @@ model Job {
   @@index([status, createdAt])
   @@index([expiresAt])
 }
-enum WorkType { FULL_TIME PART_TIME CONTRACT INTERNSHIP FREELANCE }
-enum WorkMode { REMOTE HYBRID ON_SITE }
-enum ExperienceLevel { ENTRYLEVEL JUNIOR MID_LEVEL SENIOR LEAD EXECUTIVE }
-enum JobSource { PLATFORM EXTERNAL }
-enum JobStatus { DRAFT ACTIVE PAUSED CLOSED ARCHIVED }
+enum WorkType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ON_SITE
+}
+enum ExperienceLevel {
+  ENTRYLEVEL
+  JUNIOR
+  MID_LEVEL
+  SENIOR
+  LEAD
+  EXECUTIVE
+}
+enum JobSource {
+  PLATFORM
+  EXTERNAL
+}
+enum JobStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  CLOSED
+  ARCHIVED
+}
 
 model ExternalJob {
   id String @id @default(uuid())
@@ -171,7 +226,14 @@ model Application {
   @@index([userId, appliedAt])
   @@index([jobId, status])
 }
-enum ApplicationStatus { APPLIED REVIEWING SHORTLISTED REJECTED HIRED WITHDRAWN }
+enum ApplicationStatus {
+  APPLIED
+  REVIEWING
+  SHORTLISTED
+  REJECTED
+  HIRED
+  WITHDRAWN
+}
 
 model SavedJob {
   id String @id @default(uuid())
@@ -196,4 +258,8 @@ model CompanyClaimRequest {
   @@index([companyId, status])
   @@index([userId, status])
 }
-enum ClaimStatus { PENDING APPROVED REJECTED }
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
