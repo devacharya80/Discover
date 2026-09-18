@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useNavigate } from "react-router-dom";
@@ -161,10 +161,10 @@ function MapView() {
     );
   };
 
-  const visibleCompanies = companies.filter((company) => {
+  const visibleCompanies = useMemo(() => companies.filter((company) => {
     const query = companySearch.trim().toLowerCase();
     return !query || company.name.toLowerCase().includes(query) || company.industry.toLowerCase().includes(query) || company.companyLocations.some((location) => location.city.toLowerCase().includes(query));
-  });
+  }), [companies, companySearch]);
 
   // --------------------------------------------------
   // Create company markers
