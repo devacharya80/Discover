@@ -81,7 +81,9 @@ function JobDetails() {
         )}
 
         {job.source === "EXTERNAL" && (
-          <p className="mt-3 text-center text-[11px] text-gray-400">External listing. Verify details on the original listing before applying.</p>
+          <p className="mt-3 text-center text-[11px] text-gray-400">
+            Jobs by <a className="underline" href="https://www.adzuna.co.in/" target="_blank" rel="noopener noreferrer">Adzuna</a>. Verify details on the original listing before applying.
+          </p>
         )}
       </div>
     </aside>
