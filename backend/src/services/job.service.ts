@@ -18,7 +18,7 @@ const publicJobInclude = {
 const buildWhere = (query: JobQueryData, companyId?: string) => ({
   ...(companyId ? { companyId } : {}),
   ...(query.companyId ? { companyId: query.companyId } : {}),
-  ...(query.status ? { status: query.status } : publicActiveFilter),
+  ...publicActiveFilter,
   ...(query.type ? { type: query.type } : {}),
   ...(query.mode ? { mode: query.mode } : {}),
   ...(query.experienceLevel ? { experienceLevel: query.experienceLevel } : {}),
