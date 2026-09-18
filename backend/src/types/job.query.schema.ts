@@ -6,7 +6,6 @@ export const jobQuerySchema = z.object({
   type: z.enum(["FULL_TIME","PART_TIME","CONTRACT","INTERNSHIP","FREELANCE"]).optional(),
   mode: z.enum(["REMOTE","HYBRID","ON_SITE"]).optional(),
   experienceLevel: z.enum(["ENTRYLEVEL","JUNIOR","MID_LEVEL","SENIOR","LEAD","EXECUTIVE"]).optional(),
-  status: z.enum(["ACTIVE","DRAFT","PAUSED","CLOSED","ARCHIVED"]).optional(),
   sortBy: z.enum(["createdAt","salaryMin","salaryMax","title"]).default("createdAt"),
   sortOrder: z.enum(["asc","desc"]).default("desc"),
   search: z.string().trim().min(2).max(100).optional(),
