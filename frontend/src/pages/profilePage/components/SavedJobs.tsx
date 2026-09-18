@@ -1,0 +1,15 @@
+import { useEffect, useState } from "react";
+import { ArrowLeft, Bookmark, ChevronRight, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { getSavedJobs } from "../../../api/saved-job.api";
+import { unsaveJob } from "../../../api/job.api";
+import type { Job } from "../../../types/job.type";
+const label=(v:string)=>v.replace(/_/g," ").toLowerCase().replace(/(^| )\w/g,m=>m.toUpperCase());
+export default function SavedJobs(){
+ const navigate=useNavigate(); const [jobs,setJobs]=useState<Job[]>([]); const [loading,setLoading]=useState(true);
+ const load=()=>getSavedJobs().then(setJobs).catch(console.error).finally(()=>setLoading(false)); useEffect(()=>{load()},[]);
+ return <div className="p-6"><header className="flex items-center gap-3"><button onClick={()=>navigate("/profile")} className="rounded-full p-2 hover:bg-gray-100"><ArrowLeft size={20}/></button><h1 className="text-2xl font-bold">Saved Jobs</h1></header>
+ {loading?<p className="mt-8 text-sm text-gray-500">Loading saved jobs...</p>:!jobs.length?<div className="mt-12 text-center"><Bookmark className="mx-auto text-gray-300" size={40}/><p className="mt-3 font-medium">No saved jobs</p><p className="mt-1 text-sm text-gray-500">Save jobs from the map or job details page.</p></div>:
+ <div className="mt-6 space-y-3">{jobs.map(job=><div key={job.id} className="rounded-2xl border p-4"><button className="w-full text-left" onClick={()=>navigate("/company/"+job.companyId+"/job/"+job.id)}><div className="flex justify-between gap-3"><div><h2 className="font-semibold">{job.title}</h2><p className="mt-1 text-sm text-gray-500">{job.company?.name}</p></div><ChevronRight size={18} className="text-gray-400"/></div><div className="mt-3 text-xs text-gray-500"><MapPin size={13} className="mr-1 inline"/>{job.location?job.location.city+", "+job.location.state:job.mode==="REMOTE"?"Remote":"Location not specified"}</div><div className="mt-3 flex gap-2 text-[11px]"><span className="rounded bg-gray-100 px-2 py-1">{label(job.type)}</span><span className="rounded bg-gray-100 px-2 py-1">{label(job.mode)}</span></div></button><button onClick={async()=>{await unsaveJob(job.id);setJobs(x=>x.filter(j=>j.id!==job.id))}} className="mt-3 text-xs text-red-600 hover:underline">Remove</button></div>)}</div>}
+ </div>
+}
