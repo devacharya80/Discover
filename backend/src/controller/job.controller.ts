@@ -128,6 +128,9 @@ export const getCompanyJobController = async (req: Request, res: Response) => {
     });
   } catch (err) {
     console.error(err);
+    if (err instanceof Error && err.message === "Job not found") {
+      return res.status(404).json({ message: err.message });
+    }
     return res.status(500).json({
       message: "Error while getting company job, Please try again later",
     });
