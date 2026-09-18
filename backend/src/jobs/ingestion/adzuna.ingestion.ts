@@ -27,8 +27,7 @@ export const ingestAdzunaJobs = async ({
     stats.fetched += response.results.length;
 
     for (const rawJob of response.results) {
-      const normalized = parseAdzunaJob(rawJob);
-      const validated = validateExternalJob(normalized);
+      const validated = validateExternalJob(parseAdzunaJob(rawJob));
 
       if (!validated) {
         stats.invalid++;
