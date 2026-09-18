@@ -1,210 +1,85 @@
 import type { Request, Response } from "express";
 import { createJobSchema, updateJobSchema } from "../types/job.schema.js";
-import {
-  createJobService,
-  getCompanyAllJobService,
-  getCompanyJobService,
-  updateCompanyJobService,
-} from "../services/job.service.js";
 import { jobQuerySchema } from "../types/job.query.schema.js";
+import {
+  createJobService, getCompanyAllJobService, getCompanyJobService,
+  getGlobalJobsService, getJobByIdService, updateCompanyJobService,
+} from "../services/job.service.js";
 
 export const createJobController = async (req: Request, res: Response) => {
   try {
-    const { companyId } = req.params;
-
-    if (typeof companyId !== "string") {
-      return res.status(400).json({
-        message: "Invalid company ID",
-      });
-    }
-
-    const userId = req.user.userId;
-
-    const validatedJobData = createJobSchema.safeParse(req.body);
-
-    if (!validatedJobData.success) {
-      return res.status(400).json({
-        message: "Invalid job data",
-        errors: validatedJobData.error.flatten().fieldErrors,
-      });
-    }
-
-    const newJob = await createJobService(
-      userId,
-      companyId,
-      validatedJobData.data,
-    );
-
-    return res.status(201).json({
-      message: "Job created successfully",
-      data: newJob,
-    });
-  } catch (err: unknown) {
-    console.error(err);
-
-    if (err instanceof Error) {
-      if (err.message === "User is not authorized to create a job") {
-        return res.status(403).json({
-          message: err.message,
-        });
-      }
-
-      if (err.message === "Location does not belong to this company") {
-        return res.status(400).json({
-          message: err.message,
-        });
-      }
-    }
-
-    return res.status(500).json({
-      message: "Error while creating job. Please try again later.",
-    });
+    const companyId = req.params.companyId;
+    if (typeof companyId !== "string") return res.status(400).json({ message: "Invalid company ID" });
+    const parsed = createJobSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid job data", errors: parsed.error.flatten().fieldErrors });
+    return res.status(201).json({ message: "Job created successfully", data: await createJobService(req.user.userId, companyId, parsed.data) });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "";
+    if (message.includes("not authorized")) return res.status(403).json({ message });
+    if (message.includes("Location does not belong")) return res.status(400).json({ message });
+    return res.status(500).json({ message: "Unable to create job" });
   }
 };
 
-export const getCompanyAllJobsController = async (
-  req: Request,
-  res: Response,
-) => {
+export const getCompanyAllJobsController = async (req: Request, res: Response) => {
   try {
-    const { companyId } = req.params;
-
-    // Validate company ID
-    if (!companyId || typeof companyId !== "string") {
-      return res.status(400).json({
-        message: "Invalid company ID",
-      });
-    }
-
-    // Validate query parameters
-    const validatedQuery = jobQuerySchema.safeParse(req.query);
-
-    if (!validatedQuery.success) {
-      return res.status(400).json({
-        message: "Invalid job query parameters",
-        errors: validatedQuery.error.flatten().fieldErrors,
-      });
-    }
-
-    const query = {
-      ...validatedQuery.data,
-      skip: (validatedQuery.data.page - 1) * validatedQuery.data.limit,
-    };
-
-    const result = await getCompanyAllJobService(companyId, query);
-
-    return res.status(200).json({
-      message: "Company jobs fetched successfully",
-      data: result.jobs,
-      pagination: result.pagination,
-    });
-  } catch (err: unknown) {
-    console.error(err);
-
-    if (err instanceof Error && err.message === "Company not found") {
-      return res.status(404).json({
-        message: err.message,
-      });
-    }
-
-    return res.status(500).json({
-      message: "Error while getting company jobs. Please try again later.",
-    });
+    const companyId = req.params.companyId;
+    if (typeof companyId !== "string") return res.status(400).json({ message: "Invalid company ID" });
+    const parsed = jobQuerySchema.safeParse(req.query);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid job query parameters", errors: parsed.error.flatten().fieldErrors });
+    const result = await getCompanyAllJobService(companyId, parsed.data);
+    return res.json({ message: "Company jobs fetched successfully", data: result.jobs, pagination: result.pagination });
+  } catch (err) {
+    if (err instanceof Error && err.message === "Company not found") return res.status(404).json({ message: err.message });
+    return res.status(500).json({ message: "Unable to fetch company jobs" });
   }
 };
 
 export const getCompanyJobController = async (req: Request, res: Response) => {
   try {
-    const { companyId, jobId } = req.params;
-    if (typeof jobId !== "string" || typeof companyId !== "string") {
-      return res.status(400).json({
-        message: "Invalid company or job ID",
-      });
-    }
-    const companyJob = await getCompanyJobService(companyId, jobId);
-    return res.status(200).json({
-      message: "company job data fetched successfully",
-      data: companyJob,
-    });
+    const companyId = req.params.companyId;
+    const jobId = req.params.jobId;
+    if (typeof companyId !== "string" || typeof jobId !== "string") return res.status(400).json({ message: "Invalid company or job ID" });
+    return res.json({ message: "Company job fetched successfully", data: await getCompanyJobService(companyId, jobId) });
   } catch (err) {
-    console.error(err);
-    if (err instanceof Error && err.message === "Job not found") {
-      return res.status(404).json({ message: err.message });
-    }
-    return res.status(500).json({
-      message: "Error while getting company job, Please try again later",
-    });
+    if (err instanceof Error && err.message === "Job not found") return res.status(404).json({ message: err.message });
+    return res.status(500).json({ message: "Unable to fetch company job" });
   }
 };
 
-export const updateCompanyJobController = async (
-  req: Request,
-  res: Response,
-) => {
+export const getGlobalJobsController = async (req: Request, res: Response) => {
   try {
-    const userId: string = req.user.userId;
-    const { companyId, jobId } = req.params;
-    if (typeof jobId !== "string" || typeof companyId !== "string") {
-      return res.status(400).json({
-        message: "Invalid company or job ID",
-      });
-    }
+    const parsed = jobQuerySchema.safeParse(req.query);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid job query parameters", errors: parsed.error.flatten().fieldErrors });
+    const result = await getGlobalJobsService(parsed.data);
+    return res.json({ message: "Jobs fetched successfully", data: result.jobs, pagination: result.pagination });
+  } catch { return res.status(500).json({ message: "Unable to fetch jobs" }); }
+};
 
-    const validatedUpdateJobData = updateJobSchema.safeParse(req.body);
-    if (!validatedUpdateJobData.success) {
-      return res.status(400).json({
-        message: "Please enter valid inputs to updated",
-        errors: validatedUpdateJobData.error.flatten().fieldErrors,
-      });
-    }
+export const getJobByIdController = async (req: Request, res: Response) => {
+  try {
+    const jobId = req.params.jobId;
+    if (typeof jobId !== "string") return res.status(400).json({ message: "Invalid job ID" });
+    return res.json({ message: "Job fetched successfully", data: await getJobByIdService(jobId) });
+  } catch (err) {
+    if (err instanceof Error && err.message === "Job not found") return res.status(404).json({ message: err.message });
+    return res.status(500).json({ message: "Unable to fetch job" });
+  }
+};
 
-    const updatedJob = await updateCompanyJobService(
-      userId,
-      companyId,
-      jobId,
-      validatedUpdateJobData.data,
-    );
-    return res.status(200).json({
-      message: "Job updated successfully",
-      data: updatedJob,
-    });
-  } catch (err: any) {
-    console.error(err);
-    if (err instanceof Error) {
-      if (err.message === "Job not found") {
-        return res.status(404).json({
-          message: err.message,
-        });
-      }
-
-      if (err.message === "Company not found") {
-        return res.status(404).json({
-          message: err.message,
-        });
-      }
-
-      if (err.message === "Unauthorized") {
-        return res.status(403).json({
-          message: err.message,
-        });
-      }
-
-      if (err.message === "Location does not belong to this company") {
-        return res.status(400).json({
-          message: err.message,
-        });
-      }
-
-      if (
-        err.message === "Minimum salary cannot be greater than maximum salary"
-      ) {
-        return res.status(400).json({
-          message: err.message,
-        });
-      }
-    }
-    return res.status(500).json({
-      message: "Error while updating company job, Please try again later",
-    });
+export const updateCompanyJobController = async (req: Request, res: Response) => {
+  try {
+    const companyId = req.params.companyId;
+    const jobId = req.params.jobId;
+    if (typeof companyId !== "string" || typeof jobId !== "string") return res.status(400).json({ message: "Invalid company or job ID" });
+    const parsed = updateJobSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid job data", errors: parsed.error.flatten().fieldErrors });
+    return res.json({ message: "Job updated successfully", data: await updateCompanyJobService(req.user.userId, companyId, jobId, parsed.data) });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "";
+    if (["Job not found","Company not found"].includes(message)) return res.status(404).json({ message });
+    if (["Unauthorized","External jobs cannot be edited from the company dashboard"].includes(message)) return res.status(403).json({ message });
+    if (message.includes("Location does not belong") || message.includes("Minimum salary")) return res.status(400).json({ message });
+    return res.status(500).json({ message: "Unable to update job" });
   }
 };
