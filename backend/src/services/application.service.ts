@@ -1,13 +1,10 @@
 import prisma from "../lib/prisma.js";
 
-const activeJobWhere = {
-  status: "ACTIVE" as const,
-  OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-};
+const activeJobWhere = () => ({ status: "ACTIVE" as const, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] });
 
 export const applyToJobService = async (userId: string, jobId: string) => {
   const job = await prisma.job.findFirst({
-    where: { id: jobId, ...activeJobWhere },
+    where: { id: jobId, ...activeJobWhere() },
     select: { id: true, source: true, externalLink: true },
   });
   if (!job) throw new Error("Job not found or no longer active");
