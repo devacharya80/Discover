@@ -37,20 +37,13 @@ export interface JobsResponse {
   message: string;
   data: Job[];
   pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
+    total: number; page: number; limit: number; totalPages: number;
+    hasNextPage: boolean; hasPreviousPage: boolean;
   };
 }
 
 export interface JobQuery {
-  page?: number;
-  limit?: number;
-  type?: WorkType;
-  mode?: WorkMode;
+  page?: number; limit?: number; type?: WorkType; mode?: WorkMode;
   experienceLevel?: ExperienceLevel;
   sortBy?: "createdAt" | "salaryMin" | "salaryMax" | "title";
   sortOrder?: "asc" | "desc";
