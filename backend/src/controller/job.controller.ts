@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
-import { createJobSchema,updateJobSchema } from "../types/job.schema.js";
+import { createJobSchema, updateJobSchema } from "../types/job.schema.js";
 import {
   createJobService,
   getCompanyAllJobService,
   getCompanyJobService,
-  updateCompanyJobService
+  updateCompanyJobService,
 } from "../services/job.service.js";
 import { jobQuerySchema } from "../types/job.query.schema.js";
 
@@ -88,15 +88,10 @@ export const getCompanyAllJobsController = async (
 
     const query = {
       ...validatedQuery.data,
-      skip:
-        (validatedQuery.data.page - 1) *
-        validatedQuery.data.limit,
+      skip: (validatedQuery.data.page - 1) * validatedQuery.data.limit,
     };
 
-    const result = await getCompanyAllJobService(
-      companyId,
-      query,
-    );
+    const result = await getCompanyAllJobService(companyId, query);
 
     return res.status(200).json({
       message: "Company jobs fetched successfully",
@@ -113,8 +108,7 @@ export const getCompanyAllJobsController = async (
     }
 
     return res.status(500).json({
-      message:
-        "Error while getting company jobs. Please try again later.",
+      message: "Error while getting company jobs. Please try again later.",
     });
   }
 };
@@ -140,10 +134,12 @@ export const getCompanyJobController = async (req: Request, res: Response) => {
   }
 };
 
-
-export const updateCompanyJobController = async(req: Request, res: Response) => {
-  try{
-    const userId:string = req.user.userId;
+export const updateCompanyJobController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const userId: string = req.user.userId;
     const { companyId, jobId } = req.params;
     if (typeof jobId !== "string" || typeof companyId !== "string") {
       return res.status(400).json({
@@ -159,49 +155,53 @@ export const updateCompanyJobController = async(req: Request, res: Response) => 
       });
     }
 
-    const updatedJob = await updateCompanyJobService(userId,companyId,jobId,validatedUpdateJobData.data);
+    const updatedJob = await updateCompanyJobService(
+      userId,
+      companyId,
+      jobId,
+      validatedUpdateJobData.data,
+    );
     return res.status(200).json({
       message: "Job updated successfully",
       data: updatedJob,
     });
-  }catch (err:any) {
+  } catch (err: any) {
     console.error(err);
     if (err instanceof Error) {
-  if (err.message === "Job not found") {
-    return res.status(404).json({
-      message: err.message,
-    });
-  }
+      if (err.message === "Job not found") {
+        return res.status(404).json({
+          message: err.message,
+        });
+      }
 
-  if (err.message === "Company not found") {
-    return res.status(404).json({
-      message: err.message,
-    });
-  }
+      if (err.message === "Company not found") {
+        return res.status(404).json({
+          message: err.message,
+        });
+      }
 
-  if (err.message === "Unauthorized") {
-    return res.status(403).json({
-      message: err.message,
-    });
-  }
+      if (err.message === "Unauthorized") {
+        return res.status(403).json({
+          message: err.message,
+        });
+      }
 
-  if (err.message === "Location does not belong to this company") {
-    return res.status(400).json({
-      message: err.message,
-    });
-  }
+      if (err.message === "Location does not belong to this company") {
+        return res.status(400).json({
+          message: err.message,
+        });
+      }
 
-  if (
-    err.message ===
-    "Minimum salary cannot be greater than maximum salary"
-  ) {
-    return res.status(400).json({
-      message: err.message,
-    });
-  }
-}
+      if (
+        err.message === "Minimum salary cannot be greater than maximum salary"
+      ) {
+        return res.status(400).json({
+          message: err.message,
+        });
+      }
+    }
     return res.status(500).json({
       message: "Error while updating company job, Please try again later",
     });
   }
-}
+};

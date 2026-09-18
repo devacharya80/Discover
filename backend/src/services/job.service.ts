@@ -302,23 +302,17 @@ export const updateCompanyJobService = async (
 
   // 5. Validate final salary range
   const finalSalaryMin =
-    jobData.salaryMin !== undefined
-      ? jobData.salaryMin
-      : job.salaryMin;
+    jobData.salaryMin !== undefined ? jobData.salaryMin : job.salaryMin;
 
   const finalSalaryMax =
-    jobData.salaryMax !== undefined
-      ? jobData.salaryMax
-      : job.salaryMax;
+    jobData.salaryMax !== undefined ? jobData.salaryMax : job.salaryMax;
 
   if (
     finalSalaryMin !== null &&
     finalSalaryMax !== null &&
     finalSalaryMin > finalSalaryMax
   ) {
-    throw new Error(
-      "Minimum salary cannot be greater than maximum salary",
-    );
+    throw new Error("Minimum salary cannot be greater than maximum salary");
   }
 
   // 6. Update job

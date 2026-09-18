@@ -30,6 +30,9 @@ app.use("/api/auth", meRouter);
 app.use("/api/user", userRouter);
 app.use("/api/company",companyRouter)
 
+import {test} from "./test-adzuna.js"
+// await test()
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

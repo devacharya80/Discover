@@ -177,6 +177,8 @@ model Job {
 
   applications Application[]
 
+  externalJob ExternalJob?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -222,6 +224,25 @@ enum JobStatus {
   PAUSED
   CLOSED
   ARCHIVED
+}
+
+model ExternalJob {
+  id String @id @default(uuid())
+
+  provider   String
+  externalId String
+
+  fingerprint String?
+
+  jobId String @unique
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@unique([provider, externalId])
+  @@index([fingerprint])
+  @@index([provider])
 }
 
 // Application model
