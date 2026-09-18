@@ -49,6 +49,10 @@ export const updateCompanyMemberService = async (
   const member = await prisma.companyMember.findFirst({ where: { id: memberId, companyId } });
   if (!member) throw new Error("Member not found");
   if (role === "OWNER" && actor.role !== "OWNER") throw new Error("Only an owner can assign owner role");
+  if (member.role === "OWNER" && role !== "OWNER") {
+    const ownerCount = await prisma.companyMember.count({ where: { companyId, role: "OWNER" } });
+    if (ownerCount <= 1) throw new Error("A company must have at least one owner");
+  }
 
   return prisma.companyMember.update({ where: { id: memberId }, data: { role } });
 };
