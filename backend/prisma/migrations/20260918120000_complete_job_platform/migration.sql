@@ -24,6 +24,7 @@ DO $$ BEGIN
     FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
+CREATE INDEX IF NOT EXISTS "Company_name_idx" ON "Company"("name");
 CREATE INDEX IF NOT EXISTS "CompanyMember_companyId_role_idx" ON "CompanyMember"("companyId","role");
 CREATE INDEX IF NOT EXISTS "CompanyLocation_companyId_isPrimary_idx" ON "CompanyLocation"("companyId","isPrimary");
 CREATE INDEX IF NOT EXISTS "Job_status_createdAt_idx" ON "Job"("status","createdAt");
