@@ -1,53 +1,25 @@
-import type {
-  AdzunaSearchResponse,
-} from "../../types/adzuna.types.js";
+import type { AdzunaSearchResponse } from "../../types/adzuna.types.js";
 
 const ADZUNA_BASE_URL = "https://api.adzuna.com/v1/api";
 
-const APP_ID = process.env.ADZUNA_APP_ID;
-const APP_KEY = process.env.ADZUNA_APP_KEY;
-
-if (!APP_ID || !APP_KEY) {
-  throw new Error("Adzuna API credentials are missing");
-}
-
 export const searchAdzunaJobs = async ({
-  country,
-  page,
-  what,
-  where,
+  country, page, what, where,
 }: {
-  country: string;
-  page: number;
-  what?: string;
-  where?: string;
+  country: string; page: number; what?: string; where?: string;
 }): Promise<AdzunaSearchResponse> => {
-  const url = new URL(
-    `${ADZUNA_BASE_URL}/jobs/${country}/search/${page}`,
-  );
+  const appId = process.env.ADZUNA_APP_ID;
+  const appKey = process.env.ADZUNA_APP_KEY;
+  if (!appId || !appKey) throw new Error("Adzuna API credentials are missing");
 
-  url.searchParams.set("app_id", APP_ID);
-  url.searchParams.set("app_key", APP_KEY);
+  const url = new URL(`${ADZUNA_BASE_URL}/jobs/${country}/search/${page}`);
+  url.searchParams.set("app_id", appId);
+  url.searchParams.set("app_key", appKey);
   url.searchParams.set("content-type", "application/json");
   url.searchParams.set("results_per_page", "20");
+  if (what) url.searchParams.set("what", what);
+  if (where) url.searchParams.set("where", where);
 
-  if (what) {
-    url.searchParams.set("what", what);
-  }
-
-  if (where) {
-    url.searchParams.set("where", where);
-  }
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(
-      `Adzuna API request failed: ${response.status} ${response.statusText}`,
-    );
-  }
-
-  const data = (await response.json()) as AdzunaSearchResponse;
-
-  return data;
+  const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+  if (!response.ok) throw new Error(`Adzuna API request failed: ${response.status} ${response.statusText}`);
+  return (await response.json()) as AdzunaSearchResponse;
 };
