@@ -215,7 +215,7 @@ function UserLocationRegister({
           required
         />
 
-        {locationData.latitude !== undefined && locationData.longitude !== undefined && (
+        {locationData.latitude != null && locationData.longitude != null && (
           <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-2.5 text-[11px] text-gray-500 flex items-center justify-between">
             <span>Lat: {locationData.latitude.toFixed(4)}</span>
             <span>Long: {locationData.longitude.toFixed(4)}</span>
