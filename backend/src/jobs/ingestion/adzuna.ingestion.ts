@@ -12,7 +12,7 @@ export interface AdzunaIngestionOptions {
 export const ingestAdzunaJobs = async ({
   country = "in", page = 1, pages = 1, what = "software engineer", where,
 }: AdzunaIngestionOptions = {}) => {
-  const stats = { fetched: 0, inserted: 0, updated: 0, skipped: 0, invalid: 0 };
+  const stats = { fetched: 0, inserted: 0, updated: 0, skipped: 0, invalid: 0 };\n  const externalExpiry = () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
   for (let currentPage = page; currentPage < page + pages; currentPage++) {
     const response = await searchAdzunaJobs({ country, page: currentPage, what, where });
@@ -51,7 +51,7 @@ export const ingestAdzunaJobs = async ({
                 salaryMin: validated.salaryMin ?? null,
                 salaryMax: validated.salaryMax ?? null,
                 externalLink: validated.applicationUrl,
-                status: "ACTIVE",
+                status: "ACTIVE",\n                expiresAt: externalExpiry(),
               },
             });
           });
