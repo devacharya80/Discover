@@ -125,7 +125,7 @@ From the repository root:
 docker compose up --build
 ```
 
-This starts PostgreSQL, the backend, and the frontend.
+This starts PostgreSQL, applies Prisma migrations automatically, and starts the backend and frontend.
 
 Before using Docker outside local development, replace the example JWT secret and database credentials.
 
