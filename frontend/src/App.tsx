@@ -11,6 +11,7 @@ import Settings from "./pages/profilePage/components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CompanyManage from "./pages/companyPages/CompanyManage";
 import CreateCompany from "./pages/companyPages/CreateCompany";
+import Admin from "./pages/Admin";
 
 function App() {
   return <Routes>
@@ -22,6 +23,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="company/:companyId/manage" element={<CompanyManage />} />
         <Route path="company/create" element={<CreateCompany />} />
+        <Route path="admin" element={<Admin />} />
         <Route path="profile" element={<ProfileMenu />}>
           <Route index element={<ProfileHome />} />
           <Route path="me" element={<MyProfile />} />
