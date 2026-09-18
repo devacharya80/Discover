@@ -15,7 +15,7 @@ export interface Company {
   verificationStatus: VerificationStatus; createdSource: CreatedSource;
   createdAt: string | Date; updatedAt: string | Date;
 }
-export interface CompanyWithLocations extends Company { companyLocations: CompanyLocation[]; }
+export interface CompanyWithLocations extends Company { companyLocations: CompanyLocation[]; _count?: { jobs:number; companyMembers:number }; }
 export interface ApiResponse<T> { message: string; data: T; }
 export type CreateCompanyType = {
   name: string; industry: string; description: string; website?: string | null;
