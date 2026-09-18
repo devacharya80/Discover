@@ -1,0 +1,10 @@
+import express from "express";
+import { authenticate } from "../middleware/auth.middleware.js";
+import { getSavedJobIdsController, getSavedJobsController, saveJobController, unsaveJobController } from "../controller/saved-job.controller.js";
+const router = express.Router();
+router.use(authenticate);
+router.get("/", getSavedJobsController);
+router.get("/ids", getSavedJobIdsController);
+router.post("/:jobId", saveJobController);
+router.delete("/:jobId", unsaveJobController);
+export default router;
