@@ -2,10 +2,7 @@ import type { CreateJobData, UpdateJobData } from "../types/job.schema.js";
 import prisma from "../lib/prisma.js";
 import type { JobQueryData } from "../types/job.query.schema.js";
 
-const publicActiveFilter = {
-  status: "ACTIVE" as const,
-  OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-};
+const publicActiveFilter = () => ({ status: "ACTIVE" as const, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] });
 
 const publicJobInclude = {
   company: {
@@ -18,7 +15,7 @@ const publicJobInclude = {
 const buildWhere = (query: JobQueryData, companyId?: string) => ({
   ...(companyId ? { companyId } : {}),
   ...(query.companyId ? { companyId: query.companyId } : {}),
-  ...publicActiveFilter,
+  ...publicActiveFilter(),
   ...(query.type ? { type: query.type } : {}),
   ...(query.mode ? { mode: query.mode } : {}),
   ...(query.experienceLevel ? { experienceLevel: query.experienceLevel } : {}),
