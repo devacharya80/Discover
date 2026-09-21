@@ -1,18 +1,105 @@
-import { useEffect,useState } from "react";
-import { ArrowLeft,ExternalLink,MapPin,Bookmark,CheckCircle2 } from "lucide-react";
-import { useNavigate,useParams } from "react-router-dom";
-import { getCompanyJob,getJob,applyToJob,saveJob } from "../api/job.api";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ExternalLink, MapPin, Bookmark, CheckCircle2, Building2, ShieldCheck } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getCompanyJob, getJob, applyToJob, saveJob } from "../api/job.api";
 import { useGlobalContext } from "../context/GlobalContext";
 import type { Job } from "../types/job.type";
-const label=(v:string)=>v.replace(/_/g," ").toLowerCase().replace(/(^| )\w/g,m=>m.toUpperCase());
 
-export default function JobDetails(){
- const {companyId,jobId}=useParams();const navigate=useNavigate();const{isAuthenticated}=useGlobalContext();const[job,setJob]=useState<Job|null>(null);const[loading,setLoading]=useState(true);const[action,setAction]=useState<"apply"|"save"|null>(null);const[message,setMessage]=useState("");
- useEffect(()=>{if(!jobId)return;const request=companyId?getCompanyJob(companyId,jobId):getJob(jobId);request.then(r=>setJob(r.data)).catch(console.error).finally(()=>setLoading(false))},[companyId,jobId]);
- if(loading)return <aside className="fixed left-0 top-0 z-50 h-screen w-full max-w-[480px] bg-white p-8 text-sm text-gray-500">Loading job...</aside>;
- if(!job)return <aside className="fixed left-0 top-0 z-50 h-screen w-full max-w-[480px] bg-white p-8 text-sm text-red-500">Job not found or no longer active.</aside>;
- const location=job.location?job.location.city+", "+job.location.state:job.externalJob?.externalLocationName??(job.mode==="REMOTE"?"Remote":"Location not specified");
- const runApply=async()=>{if(!isAuthenticated){setMessage("Sign in to apply to platform jobs.");return}setAction("apply");setMessage("");try{await applyToJob(job.id);setMessage("Application submitted successfully.")}catch(e:any){setMessage(e?.response?.data?.message??"Unable to apply right now.")}finally{setAction(null)}};
- const runSave=async()=>{if(!isAuthenticated){setMessage("Sign in to save jobs.");return}setAction("save");try{await saveJob(job.id);setMessage("Job saved to your profile.")}catch(e:any){if(e?.response?.status===409){setMessage("Job is already saved.")}else setMessage(e?.response?.data?.message??"Unable to save job.")}finally{setAction(null)}};
- return <aside className="fixed left-0 top-0 z-50 h-screen w-full max-w-[480px] overflow-y-auto bg-white shadow-2xl"><div className="sticky top-0 flex items-center gap-3 border-b border-gray-200 bg-white p-4"><button onClick={()=>navigate(-1)} className="rounded-full p-2 hover:bg-gray-100"><ArrowLeft size={20}/></button><span className="text-sm font-medium text-gray-600">Job details</span></div><div className="p-6"><h1 className="text-2xl font-bold">{job.title}</h1>{job.company&&<p className="mt-2 text-sm text-gray-500">{job.company.name}</p>}<div className="mt-4 flex flex-wrap gap-2"><span className="rounded-full bg-gray-100 px-3 py-1 text-xs">{label(job.type)}</span><span className="rounded-full bg-gray-100 px-3 py-1 text-xs">{label(job.mode)}</span><span className="rounded-full bg-gray-100 px-3 py-1 text-xs">{label(job.experienceLevel)}</span></div><div className="mt-5 flex items-center gap-2 text-sm text-gray-600"><MapPin size={16}/>{location}</div>{(job.salaryMin!==null||job.salaryMax!==null)&&<p className="mt-3 text-sm font-medium">Salary: {job.salaryMin??"—"}{job.salaryMax!==null?" - "+job.salaryMax:"+"}</p>}{job.skills.length>0&&<div className="mt-5 flex flex-wrap gap-2">{job.skills.map(s=><span key={s} className="rounded-lg border px-2.5 py-1 text-xs text-gray-600">{s}</span>)}</div>}<section className="mt-7"><h2 className="text-sm font-semibold">Description</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-gray-600">{job.description}</p></section>{message&&<div className="mt-5 rounded-xl bg-gray-50 p-3 text-sm text-gray-600">{message}</div>}<div className="mt-7 grid grid-cols-2 gap-2">{job.source==="PLATFORM"?<button onClick={runApply} disabled={action!==null} className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50">{action==="apply"?"Applying...":<><CheckCircle2 size={16}/>Apply</>}</button>:<a href={job.externalLink??"#"} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white">Apply externally <ExternalLink size={16}/></a>}<button onClick={runSave} disabled={action!==null} className="flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold disabled:opacity-50"><Bookmark size={16}/>{action==="save"?"Saving...":"Save"}</button></div>{job.source==="EXTERNAL"&&<p className="mt-3 text-center text-[11px] text-gray-400">Jobs by <a className="underline" href="https://www.adzuna.co.in/" target="_blank" rel="noopener noreferrer">Adzuna</a>. Verify details on the original listing before applying.</p>}</div></aside>;
+const label = (v: string) =>
+  v.replace(/_/g, " ").toLowerCase().replace(/(^| )\w/g, (m) => m.toUpperCase());
+
+export default function JobDetails() {
+  const { companyId, jobId } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useGlobalContext();
+  const [job, setJob] = useState<Job | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [action, setAction] = useState<"apply" | "save" | null>(null);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!jobId) return;
+    const request = companyId ? getCompanyJob(companyId, jobId) : getJob(jobId);
+    request.then((r) => setJob(r.data)).catch(console.error).finally(() => setLoading(false));
+  }, [companyId, jobId]);
+
+  if (loading) return <aside className="fixed left-0 top-0 z-50 h-screen w-full max-w-[480px] bg-white p-8 text-sm text-gray-500">Loading job...</aside>;
+  if (!job) return <aside className="fixed left-0 top-0 z-50 h-screen w-full max-w-[480px] bg-white p-8 text-sm text-red-500">Job not found or no longer active.</aside>;
+
+  const location = job.location
+    ? \`\${job.location.city}, \${job.location.state}\`
+    : job.externalJob?.externalLocationName ?? (job.mode === "REMOTE" ? "Remote" : "Location not specified");
+
+  const runApply = async () => {
+    if (!isAuthenticated) { setMessage("Sign in to apply to platform jobs."); return; }
+    setAction("apply"); setMessage("");
+    try { await applyToJob(job.id); setMessage("Application submitted successfully."); }
+    catch (e: any) { setMessage(e?.response?.data?.message ?? "Unable to apply right now."); }
+    finally { setAction(null); }
+  };
+
+  const runSave = async () => {
+    if (!isAuthenticated) { setMessage("Sign in to save jobs."); return; }
+    setAction("save"); setMessage("");
+    try { await saveJob(job.id); setMessage("Job saved to your profile."); }
+    catch (e: any) { setMessage(e?.response?.status === 409 ? "Job is already saved." : e?.response?.data?.message ?? "Unable to save job."); }
+    finally { setAction(null); }
+  };
+
+  return (
+    <aside className="fixed left-0 top-0 z-50 h-screen w-full max-w-[480px] overflow-y-auto bg-white shadow-2xl">
+      <div className="sticky top-0 flex items-center gap-3 border-b border-gray-200 bg-white p-4">
+        <button onClick={() => navigate(-1)} className="rounded-full p-2 hover:bg-gray-100"><ArrowLeft size={20} /></button>
+        <span className="text-sm font-medium text-gray-600">Job details</span>
+      </div>
+      <div className="p-6">
+        <div className="flex items-start gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100">
+            {job.company?.logoUrl ? <img src={job.company.logoUrl} alt="" className="h-full w-full object-cover" /> : <Building2 size={22} className="text-gray-400" />}
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold">{job.title}</h1>
+            {job.company && <button onClick={() => navigate("/company/" + job.company!.id)} className="mt-1 text-left text-sm font-medium text-gray-600 hover:text-gray-900">{job.company.name}</button>}
+          </div>
+        </div>
+
+        {job.company && (
+          <button onClick={() => navigate("/company/" + job.company!.id)} className="mt-5 w-full rounded-2xl border border-gray-200 p-4 text-left hover:bg-gray-50">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Company</p>
+                <p className="mt-1 font-semibold text-gray-900">{job.company.name}</p>
+                {job.company.industry && <p className="mt-1 text-xs text-gray-500">{job.company.industry}</p>}
+              </div>
+              {job.company.verificationStatus === "VERIFIED" && <ShieldCheck size={18} className="shrink-0 text-green-600" />}
+            </div>
+            <p className="mt-2 text-xs text-gray-500">View company profile and locations →</p>
+          </button>
+        )}
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs">{label(job.type)}</span>
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs">{label(job.mode)}</span>
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs">{label(job.experienceLevel)}</span>
+          {job.source === "EXTERNAL" && <span className="rounded-full bg-gray-100 px-3 py-1 text-xs">Adzuna</span>}
+        </div>
+
+        <div className="mt-5 flex items-center gap-2 text-sm text-gray-600"><MapPin size={16} />{location}</div>
+        {(job.salaryMin !== null || job.salaryMax !== null) && <p className="mt-3 text-sm font-medium">Salary: {job.salaryMin ?? "—"}{job.salaryMax !== null ? " - " + job.salaryMax : "+"}</p>}
+
+        {job.skills.length > 0 && <div className="mt-5 flex flex-wrap gap-2">{job.skills.map((s) => <span key={s} className="rounded-lg border px-2.5 py-1 text-xs text-gray-600">{s}</span>)}</div>}
+
+        <section className="mt-7"><h2 className="text-sm font-semibold">Description</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-gray-600">{job.description}</p></section>
+
+        {message && <div className="mt-5 rounded-xl bg-gray-50 p-3 text-sm text-gray-600">{message}</div>}
+
+        <div className="mt-7 grid grid-cols-2 gap-2">
+          {job.source === "PLATFORM" ? <button onClick={runApply} disabled={action !== null} className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50">{action === "apply" ? "Applying..." : <><CheckCircle2 size={16} />Apply</>}</button> : <a href={job.externalLink ?? "#"} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white">Apply externally <ExternalLink size={16} /></a>}
+          <button onClick={runSave} disabled={action !== null} className="flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold disabled:opacity-50"><Bookmark size={16} />{action === "save" ? "Saving..." : "Save"}</button>
+        </div>
+
+        {job.source === "EXTERNAL" && <p className="mt-3 text-center text-[11px] text-gray-400">Jobs by <a className="underline" href="https://www.adzuna.co.in/" target="_blank" rel="noopener noreferrer">Adzuna</a>. Verify details on the original listing before applying.</p>}
+      </div>
+    </aside>
+  );
 }
