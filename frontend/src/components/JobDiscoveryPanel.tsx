@@ -1,7 +1,71 @@
-import { useEffect,useState } from "react";
-import { Briefcase,ChevronRight,Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Briefcase, ChevronRight, Search, MapPin, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getJobs } from "../api/job.api";
 import type { Job } from "../types/job.type";
-const label=(v:string)=>v.replace(/_/g," ").toLowerCase().replace(/(^| )\w/g,m=>m.toUpperCase());
-export default function JobDiscoveryPanel(){const navigate=useNavigate();const[jobs,setJobs]=useState<Job[]>([]);const[search,setSearch]=useState("");const[open,setOpen]=useState(false);const[loading,setLoading]=useState(false);useEffect(()=>{if(!open)return;const t=setTimeout(()=>{setLoading(true);getJobs({search:search||undefined,limit:8}).then(r=>setJobs(r.data)).catch(console.error).finally(()=>setLoading(false))},250);return()=>clearTimeout(t)},[search,open]);return <div className="absolute left-4 top-24 z-20 w-[min(390px,calc(100vw-32px))]"><button onClick={()=>setOpen(x=>!x)} className="rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold shadow-lg hover:bg-gray-50"><Briefcase size={16} className="mr-2 inline"/>Discover jobs</button>{open&&<div className="mt-2 overflow-hidden rounded-2xl border bg-white shadow-2xl"><div className="border-b p-3"><div className="relative"><Search size={16} className="absolute left-3 top-3 text-gray-400"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search software jobs..." className="w-full rounded-xl bg-gray-100 py-2.5 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-gray-200"/></div></div><div className="max-h-[55vh] overflow-y-auto p-2">{loading?<p className="p-4 text-sm text-gray-500">Searching...</p>:!jobs.length?<p className="p-4 text-sm text-gray-500">No active jobs found.</p>:jobs.map(job=><button key={job.id} onClick={()=>navigate("/job/"+job.id)} className="group w-full rounded-xl p-3 text-left hover:bg-gray-50"><div className="flex justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold">{job.title}</p><p className="mt-1 text-xs text-gray-500">{job.company?.name}</p><div className="mt-2 flex gap-1.5"><span className="rounded bg-gray-100 px-2 py-1 text-[10px]">{label(job.type)}</span><span className="rounded bg-gray-100 px-2 py-1 text-[10px]">{label(job.mode)}</span></div></div><ChevronRight size={16} className="mt-1 shrink-0 text-gray-400 group-hover:translate-x-0.5"/></div></button>)}</div></div>}</div>}
+
+const label = (v: string) =>
+  v.replace(/_/g, " ").toLowerCase().replace(/(^| )\w/g, (m) => m.toUpperCase());
+
+export default function JobDiscoveryPanel() {
+  const navigate = useNavigate();
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => {
+      setLoading(true);
+      getJobs({ search: search || undefined, limit: 8 })
+        .then((r) => setJobs(r.data))
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [search, open]);
+
+  return (
+    <div className="absolute left-4 top-24 z-20 w-[min(390px,calc(100vw-32px))]">
+      <button onClick={() => setOpen((x) => !x)} className="rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold shadow-lg hover:bg-gray-50">
+        <Briefcase size={16} className="mr-2 inline" />Discover jobs
+      </button>
+      {open && (
+        <div className="mt-2 overflow-hidden rounded-2xl border bg-white shadow-2xl">
+          <div className="border-b p-3">
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-3 text-gray-400" />
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search jobs, skills or companies..." className="w-full rounded-xl bg-gray-100 py-2.5 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-gray-200" />
+            </div>
+          </div>
+          <div className="max-h-[55vh] overflow-y-auto p-2">
+            {loading ? <p className="p-4 text-sm text-gray-500">Searching...</p> : !jobs.length ? <p className="p-4 text-sm text-gray-500">No active jobs found.</p> : jobs.map((job) => {
+              const location = job.location
+                ? \`\${job.location.city}, \${job.location.state}\`
+                : job.externalJob?.externalLocationName ?? (job.mode === "REMOTE" ? "Remote" : "Location not specified");
+              return (
+                <button key={job.id} onClick={() => navigate("/job/" + job.id)} className="group w-full rounded-xl p-3 text-left hover:bg-gray-50">
+                  <div className="flex justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{job.title}</p>
+                      <p className="mt-1 truncate text-xs font-medium text-gray-600">{job.company?.name ?? "Company unavailable"}</p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        <span className="rounded bg-gray-100 px-2 py-1 text-[10px]">{label(job.type)}</span>
+                        <span className="rounded bg-gray-100 px-2 py-1 text-[10px]">{label(job.mode)}</span>
+                        <span className="rounded bg-gray-100 px-2 py-1 text-[10px]">{label(job.experienceLevel)}</span>
+                      </div>
+                      <p className="mt-2 flex items-center gap-1 text-[11px] text-gray-500"><MapPin size={12} />{location}</p>
+                      {job.source === "EXTERNAL" && <p className="mt-1 flex items-center gap-1 text-[10px] text-gray-400"><ExternalLink size={11} />Adzuna listing</p>}
+                    </div>
+                    <ChevronRight size={16} className="mt-1 shrink-0 text-gray-400 group-hover:translate-x-0.5" />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
