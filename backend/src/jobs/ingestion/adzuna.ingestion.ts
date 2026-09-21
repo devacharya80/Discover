@@ -40,9 +40,58 @@ export const ingestAdzunaJobs = async ({
                 externalLongitude: validated.location.longitude ?? null,
               },
             });
+
+            const existingJob = await tx.job.findUnique({
+              where: { id: external.jobId },
+              select: { companyId: true },
+            });
+
+            let locationId: string | null = null;
+
+            if (existingJob && validated.location.latitude !== undefined && validated.location.longitude !== undefined) {
+              const existingLocation = await tx.companyLocation.findFirst({
+                where: {
+                  companyId: existingJob.companyId,
+                  latitude: validated.location.latitude,
+                  longitude: validated.location.longitude,
+                },
+                select: { id: true },
+              });
+
+              if (existingLocation) {
+                locationId = existingLocation.id;
+              } else {
+                const hasPrimary = await tx.companyLocation.findFirst({
+                  where: { companyId: existingJob.companyId },
+                  select: { id: true },
+                });
+                const city = validated.location.city ?? validated.location.name;
+                const state = validated.location.state ?? INDIA_STATE_BY_CITY[normalizeCity(validated.location.city)] ?? "Karnataka";
+                const locationCountry = validated.location.country ?? (country === "in" ? "INDIA" : country.toUpperCase());
+
+                const createdLocation = await tx.companyLocation.create({
+                  data: {
+                    companyId: existingJob.companyId,
+                    name: validated.location.name,
+                    address: validated.location.name,
+                    city,
+                    state,
+                    country: locationCountry,
+                    latitude: validated.location.latitude,
+                    longitude: validated.location.longitude,
+                    pincode: "000000",
+                    isPrimary: !hasPrimary,
+                  },
+                  select: { id: true },
+                });
+                locationId = createdLocation.id;
+              }
+            }
+
             await tx.job.update({
               where: { id: external.jobId },
               data: {
+                ...(locationId ? { locationId } : {}),
                 title: validated.title,
                 description: validated.description,
                 type: validated.type,
