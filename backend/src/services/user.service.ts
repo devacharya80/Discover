@@ -6,6 +6,7 @@ const userProfileSelect = {
   id: true,
   name: true,
   email: true,
+  role: true,
   location: true,
   companyMembers: {
     select: {

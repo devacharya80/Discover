@@ -284,7 +284,7 @@ function UserLocationRegister({
                 <p className="font-semibold text-gray-800">Selected details:</p>
                 <p className="truncate">{locationData.address}, {locationData.city}</p>
                 <p>{locationData.state}, {locationData.pincode}</p>
-                {locationData.latitude !== undefined && locationData.longitude !== undefined && (
+                {locationData.latitude != null && locationData.longitude != null && (
                   <p className="text-gray-400">
                     Coords: {locationData.latitude.toFixed(4)}, {locationData.longitude.toFixed(4)}
                   </p>

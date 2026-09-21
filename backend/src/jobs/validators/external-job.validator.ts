@@ -25,6 +25,12 @@ export const normalizedExternalJobSchema = z.object({
 }).refine(
   (data) => data.salaryMin === undefined || data.salaryMax === undefined || data.salaryMin <= data.salaryMax,
   { message: "Minimum salary cannot be greater than maximum salary", path: ["salaryMax"] },
+).refine(
+  (data) => (data.location.latitude === undefined && data.location.longitude === undefined) ||
+    (data.location.latitude !== undefined && data.location.longitude !== undefined &&
+      data.location.latitude >= -90 && data.location.latitude <= 90 &&
+      data.location.longitude >= -180 && data.location.longitude <= 180),
+  { message: "Coordinates must be a valid latitude/longitude pair", path: ["location"] },
 );
 
 export type ValidatedExternalJob = z.infer<typeof normalizedExternalJobSchema>;

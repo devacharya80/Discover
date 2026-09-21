@@ -1,4 +1,5 @@
 import prisma from "../../lib/prisma.js";
+import type { Prisma } from "../../generated/prisma/client.js";
 import { searchAdzunaJobs } from "../providers/adzuna.provider.js";
 import { parseAdzunaJob } from "../parsers/adzuna.parser.js";
 import { validateExternalJob } from "../validators/external-job.validator.js";
@@ -8,6 +9,45 @@ import { resolveExternalCompany } from "../resolution/company.resolver.js";
 export interface AdzunaIngestionOptions {
   country?: string; page?: number; pages?: number; what?: string; where?: string;
 }
+
+/**
+ * A provider location is only promoted to a map location when the provider
+ * supplied coordinates. Text-only locations remain on ExternalJob so we do
+ * not fabricate a pin for a company.
+ */
+const resolveExternalLocation = async (
+  tx: Prisma.TransactionClient,
+  companyId: string,
+  location: { name: string; city?: string; state?: string; country?: string; latitude?: number; longitude?: number },
+) => {
+  if (location.latitude === undefined || location.longitude === undefined) return null;
+
+  const existing = await tx.companyLocation.findFirst({
+    where: { companyId, latitude: location.latitude, longitude: location.longitude },
+    select: { id: true },
+  });
+  if (existing) return existing.id;
+
+  const hasLocation = await tx.companyLocation.findFirst({ where: { companyId }, select: { id: true } });
+  const created = await tx.companyLocation.create({
+    data: {
+      companyId,
+      name: location.name,
+      address: location.name,
+      city: location.city ?? "",
+      state: location.state ?? "",
+      country: location.country ?? "",
+      latitude: location.latitude,
+      longitude: location.longitude,
+      // External sources do not provide postal codes. An empty value preserves
+      // that distinction instead of asserting an invented postal code.
+      pincode: "",
+      isPrimary: !hasLocation,
+    },
+    select: { id: true },
+  });
+  return created.id;
+};
 
 export const ingestAdzunaJobs = async ({
   country = "in", page = 1, pages = 1, what = "software engineer", where,
@@ -46,47 +86,9 @@ export const ingestAdzunaJobs = async ({
               select: { companyId: true },
             });
 
-            let locationId: string | null = null;
-
-            if (existingJob && validated.location.latitude !== undefined && validated.location.longitude !== undefined) {
-              const existingLocation = await tx.companyLocation.findFirst({
-                where: {
-                  companyId: existingJob.companyId,
-                  latitude: validated.location.latitude,
-                  longitude: validated.location.longitude,
-                },
-                select: { id: true },
-              });
-
-              if (existingLocation) {
-                locationId = existingLocation.id;
-              } else {
-                const hasPrimary = await tx.companyLocation.findFirst({
-                  where: { companyId: existingJob.companyId },
-                  select: { id: true },
-                });
-                const city = validated.location.city ?? validated.location.name;
-                const state = validated.location.state ?? INDIA_STATE_BY_CITY[normalizeCity(validated.location.city)] ?? "Karnataka";
-                const locationCountry = validated.location.country ?? (country === "in" ? "INDIA" : country.toUpperCase());
-
-                const createdLocation = await tx.companyLocation.create({
-                  data: {
-                    companyId: existingJob.companyId,
-                    name: validated.location.name,
-                    address: validated.location.name,
-                    city,
-                    state,
-                    country: locationCountry,
-                    latitude: validated.location.latitude,
-                    longitude: validated.location.longitude,
-                    pincode: "000000",
-                    isPrimary: !hasPrimary,
-                  },
-                  select: { id: true },
-                });
-                locationId = createdLocation.id;
-              }
-            }
+            const locationId = existingJob
+              ? await resolveExternalLocation(tx, existingJob.companyId, validated.location)
+              : null;
 
             await tx.job.update({
               where: { id: external.jobId },
@@ -115,9 +117,11 @@ export const ingestAdzunaJobs = async ({
 
       const company = await resolveExternalCompany(validated);
       await prisma.$transaction(async (tx) => {
+        const locationId = await resolveExternalLocation(tx, company.id, validated.location);
         const createdJob = await tx.job.create({
           data: {
             companyId: company.id,
+            ...(locationId ? { locationId } : {}),
             title: validated.title,
             description: validated.description,
             type: validated.type,
@@ -130,6 +134,7 @@ export const ingestAdzunaJobs = async ({
             source: "EXTERNAL",
             status: "ACTIVE",
             createdAt: validated.createdAt,
+            expiresAt: externalExpiry(),
           },
         });
         await tx.externalJob.create({

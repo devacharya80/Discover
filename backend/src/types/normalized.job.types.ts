@@ -26,7 +26,7 @@ export interface NormalizedExternalJob {
   mode?: WorkMode;
   experienceLevel: ExperienceLevel;
 
-  skills: string[];
+  skills: readonly string[];
 
   salaryMin?: number;
   salaryMax?: number;

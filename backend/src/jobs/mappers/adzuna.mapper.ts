@@ -46,7 +46,10 @@ const KNOWN_SKILLS = [
 
 export const extractAdzunaSkills = (title: string, description: string): string[] => {
   const text = (title + " " + description).toLowerCase();
-  return KNOWN_SKILLS.filter((skill) => text.includes(skill.toLowerCase())).slice(0, 20);
+  return KNOWN_SKILLS.filter((skill) => {
+    const escapedSkill = skill.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(^|[^a-z0-9])${escapedSkill}(?=$|[^a-z0-9])`, "i").test(text);
+  }).slice(0, 20);
 };
 
 export const parseAdzunaLocation = (displayName: string, area: string[]) => {
